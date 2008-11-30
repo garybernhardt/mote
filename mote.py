@@ -20,7 +20,7 @@ class LocalFunctions(dict):
 
     def _trace_return_statement(self, frame):
         local_functions = self._local_functions_in_frame(frame)
-        self.update(frame.f_locals)
+        self.update(local_functions)
 
     def _trace_function_call(self, frame):
         traced_fn_name = frame.f_code.co_name
@@ -31,9 +31,9 @@ class LocalFunctions(dict):
 
     @staticmethod
     def _local_functions_in_frame(frame):
-        return [local_obj
-                for name, local_obj in frame.f_locals.items()
-                if callable(local_obj)]
+        return dict((name, local_obj)
+                    for name, local_obj in frame.f_locals.items()
+                    if callable(local_obj))
 
 
 if __name__ == '__main__':
