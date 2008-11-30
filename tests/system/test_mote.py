@@ -11,12 +11,20 @@ def run_mote(test_file_name):
     return process.stdout.read()
 
 
+def fails(spec_file_name):
+    return run_mote(spec_file_name) == 'Specs failed\n'
+
+
+def succeeds(spec_file_name):
+    return run_mote(spec_file_name) == 'All specs passed\n'
+
+
 def should_pass_with_no_tests():
-    assert run_mote('spec_with_no_assertions.py') == 'All specs passed\n'
+    assert succeeds('spec_with_no_assertions.py')
 
 def should_pass_with_one_test():
-    assert run_mote('spec_with_one_assertion.py') == 'All specs passed\n'
+    assert succeeds('spec_with_one_assertion.py')
 
 def should_fail_when_spec_raises_assertion_error():
-    assert run_mote('spec_that_raises_assertion_error.py') == 'Specs failed\n'
+    assert fails('spec_that_raises_assertion_error.py')
 
