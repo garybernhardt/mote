@@ -7,11 +7,11 @@ class LocalFunctions(dict):
         self._call_function_with_trace()
 
     def _call_function_with_trace(self):
-        sys.settrace(self._trace_function)
+        sys.settrace(self._trace)
         self.function()
         sys.settrace(None)
 
-    def _trace_function(self, frame, event, arg):
+    def _trace(self, frame, event, arg):
         if event == 'return':
             self._trace_return_statement(frame)
         elif event == 'call':
@@ -25,7 +25,7 @@ class LocalFunctions(dict):
     def _trace_function_call(self, frame):
         traced_fn_name = frame.f_code.co_name
         if traced_fn_name == self.function.__name__:
-            return self._trace_function
+            return self._trace
         else:
             return None
 
@@ -36,6 +36,64 @@ class LocalFunctions(dict):
                     if callable(local_obj))
 
 
+class SpecSuite:
+    def __init__(self, module_path):
+        self.function = function
+
+    @property
+    def local_objects(self):
+        function_locals = dict()
+        def trace(frame, event, arg):
+            traced_fn_name = frame.f_code.co_name
+            if event == 'return':
+                function_locals[traced_fn_name] = frame.f_locals
+            elif event == 'call':
+                if traced_fn_name == self.function.__name__:
+                    return trace
+
+        sys.settrace(trace)
+        self.function()
+        sys.settrace(None)
+
+        return function_locals[self.function.__name__]
+
+    def run(self):
+        name = self.function.__name__
+        for name, child in self.sorted_children:
+            Case(child).run()
+
+
+class SpecSuite:
+    def __init__(self, module_path):
+        self.module_path = module_path
+
+    def run(self):
+        module = ImportedModule(self.module_path)
+        for module_attribute in module.values():
+            if callable(module_attribute):
+                Context(module_attribute).run()
+
+
+class ImportedModule(dict):
+    def __init__(self, filename):
+        execfile(filename, self)
+
+
+class Context:
+    def __init__(self, context_function):
+        self.context_function = context_function
+
+    def run(self):
+        case_functions = LocalFunctions(self.context_function)
+        for case_function in case_functions.values():
+            case_function()
+
+
 if __name__ == '__main__':
-    print 'All specs passed'
+    try:
+        SpecSuite(sys.argv[1]).run()
+    except:
+        print 'Specs failed'
+    else:
+        print 'All specs passed'
 
