@@ -68,13 +68,18 @@ class SpecSuite:
         self.module_path = module_path
 
     def run(self):
-        module_contents = ImportedModule(self.module_path)
+        module_contents = ImportedModule(self.module_path).values()
         self._run_cases(module_contents)
 
+    def _context_functions_in_module(self, module_contents):
+        return [module_attribute
+                for module_attribute in module_contents
+                if callable(module_attribute)]
+
     def _run_cases(self, module_contents):
-        for module_attribute in module_contents.values():
-            if callable(module_attribute):
-                Context(module_attribute).run()
+        context_functions = self._context_functions_in_module(module_contents)
+        for context_function in context_functions:
+            Context(context_function).run()
 
 
 class ImportedModule(dict):
