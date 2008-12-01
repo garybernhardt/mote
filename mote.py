@@ -1,7 +1,7 @@
 import sys
 
 
-class LocalFunctions(dict):
+class LocalFunctions(list):
     def __init__(self, function):
         self.function = function
         self._call_function_with_trace()
@@ -20,7 +20,7 @@ class LocalFunctions(dict):
 
     def _trace_return_statement(self, frame):
         local_functions = self._local_functions_in_frame(frame)
-        self.update(local_functions)
+        self.extend(local_functions)
 
     def _trace_function_call(self, frame):
         traced_fn_name = frame.f_code.co_name
@@ -31,9 +31,9 @@ class LocalFunctions(dict):
 
     @staticmethod
     def _local_functions_in_frame(frame):
-        return dict((name, local_obj)
-                    for name, local_obj in frame.f_locals.items()
-                    if callable(local_obj))
+        return [local_obj
+                for name, local_obj in frame.f_locals.items()
+                if callable(local_obj)]
 
 
 class SpecSuite:
@@ -106,7 +106,10 @@ class Context:
 
     def _run_all_cases(self):
         case_functions = LocalFunctions(self.context_function)
-        for case_function in case_functions.values():
+        sorted_case_functions = sorted(
+            case_functions,
+            key=lambda fn: fn.func_code.co_firstlineno)
+        for case_function in sorted_case_functions:
             case_function()
 
 

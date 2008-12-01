@@ -12,7 +12,7 @@ def run_mote(test_file_name):
     return process.stdout.read()
 
 
-class WhenRunningMote:
+class SystemTest:
     def setup(self):
         self.test_file_path = tempfile.mktemp('mote_system_test')
 
@@ -25,6 +25,11 @@ class WhenRunningMote:
     def _fails(self):
         return run_mote(self.test_file_path) == 'Specs failed\n'
 
+    def _output(self):
+        return run_mote(self.test_file_path)
+
+
+class WhenRunningMote(SystemTest):
     def should_pass_with_no_tests(self):
         self._write_test_file('')
         assert self._succeeds()
@@ -50,4 +55,22 @@ class FooException(Exception):
 def describe_with_test_that_raises_value_error():
     def should_raise_error():
         raise ValueError()''')
+
+
+class WhenTestsHaveDifferentOrders(SystemTest):
+    CONTEXT_DEF = 'def describe_ordered_tests():'
+    FIRST_TEST_DEF = '    def first_test(): print "%s"'
+    SECOND_TEST_DEF = '    def second_test(): print "%s"'
+
+    def should_run_tests_in_order(self):
+        self._write_test_file('\n'.join([self.CONTEXT_DEF,
+                                         self.FIRST_TEST_DEF % '1',
+                                         self.SECOND_TEST_DEF % '2']))
+        assert self._output()[:3] == '1\n2'
+
+    def should_run_tests_in_order_when_reversed(self):
+        self._write_test_file('\n'.join([self.CONTEXT_DEF,
+                                         self.SECOND_TEST_DEF % '1',
+                                         self.FIRST_TEST_DEF % '2']))
+        assert self._output()[:3] == '1\n2'
 

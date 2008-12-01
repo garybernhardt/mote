@@ -21,12 +21,8 @@ class WhenExaminingFunctionWithALocalFunction(BaseFixture):
     def should_have_correct_number_of_local_function(self):
         assert len(self.local_functions) == 1
 
-    def should_find_local_function_name(self):
-        local_function_name = self.local_functions.keys()[0]
-        assert local_function_name == 'local_function'
-
     def should_find_local_function_object(self):
-        local_function = self.local_functions.values()[0]
+        local_function = self.local_functions[0]
         assert local_function() == 'local function return'
 
 
