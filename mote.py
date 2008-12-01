@@ -37,33 +37,6 @@ class LocalFunctions(list):
 
 
 class SpecSuite:
-    def __init__(self, module_path):
-        self.function = function
-
-    @property
-    def local_objects(self):
-        function_locals = dict()
-        def trace(frame, event, arg):
-            traced_fn_name = frame.f_code.co_name
-            if event == 'return':
-                function_locals[traced_fn_name] = frame.f_locals
-            elif event == 'call':
-                if traced_fn_name == self.function.__name__:
-                    return trace
-
-        sys.settrace(trace)
-        self.function()
-        sys.settrace(None)
-
-        return function_locals[self.function.__name__]
-
-    def run(self):
-        name = self.function.__name__
-        for name, child in self.sorted_children:
-            Case(child).run()
-
-
-class SpecSuite:
     def __init__(self, module_contents):
         self.module_contents = module_contents.values()
 
