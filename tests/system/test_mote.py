@@ -1,5 +1,6 @@
 import os
 import subprocess
+import tempfile
 
 
 def run_mote(test_file_name):
@@ -11,22 +12,34 @@ def run_mote(test_file_name):
     return process.stdout.read()
 
 
-def fails(spec_file_name):
-    return run_mote(spec_file_name) == 'Specs failed\n'
+class WhenRunningMote:
+    def setup(self):
+        self.test_file_path = tempfile.mktemp('mote_system_test')
 
+    def _write_test_file(self, content):
+        file(self.test_file_path, 'w').write(content)
 
-def succeeds(spec_file_name):
-    return run_mote(spec_file_name) == 'All specs passed\n'
+    def _succeeds(self):
+        return run_mote(self.test_file_path) == 'All specs passed\n'
 
+    def _fails(self):
+        return run_mote(self.test_file_path) == 'Specs failed\n'
 
-def should_pass_with_no_tests():
-    assert succeeds('spec_with_no_assertions.py')
+    def should_pass_with_no_tests(self):
+        self._write_test_file('')
+        assert self._succeeds()
 
+    def should_pass_with_one_test(self):
+        self._write_test_file('''
+def describe_integers():
+    def should_add_correctly():
+        assert 1 + 1 == 2''')
+        assert self._succeeds()
 
-def should_pass_with_one_test():
-    assert succeeds('spec_with_one_assertion.py')
-
-
-def should_fail_when_spec_raises_assertion_error():
-    assert fails('spec_that_raises_assertion_error.py')
+    def should_fail_when_spec_raises_assertion_error(self):
+        self._write_test_file('''
+def describe_integers_incorrectly():
+    def should_add_incorrectly():
+        assert 1 + 1 == 3''')
+        assert self._fails()
 
