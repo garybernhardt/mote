@@ -16,7 +16,6 @@ class WhenCreatingSuite(BaseFixture):
     def setup(self):
         super(WhenCreatingSuite, self).setup()
         mote.ImportedModule.return_value = {}
-        mote.execfile = Dingus()
         self.filename = 'spec_foo.py'
         self.suite = SpecSuite(self.filename)
 
