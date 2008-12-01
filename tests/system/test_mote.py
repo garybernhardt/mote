@@ -43,3 +43,11 @@ def describe_integers_incorrectly():
         assert 1 + 1 == 3''')
         assert self._fails()
 
+    def should_fail_when_spec_raises_unknown_error(self):
+        self._write_test_file('''
+class FooException(Exception):
+    pass
+def describe_with_test_that_raises_value_error():
+    def should_raise_error():
+        raise ValueError()''')
+
