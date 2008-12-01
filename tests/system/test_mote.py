@@ -22,8 +22,10 @@ def succeeds(spec_file_name):
 def should_pass_with_no_tests():
     assert succeeds('spec_with_no_assertions.py')
 
+
 def should_pass_with_one_test():
     assert succeeds('spec_with_one_assertion.py')
+
 
 def should_fail_when_spec_raises_assertion_error():
     assert fails('spec_that_raises_assertion_error.py')
