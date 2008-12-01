@@ -64,12 +64,11 @@ class SpecSuite:
 
 
 class SpecSuite:
-    def __init__(self, module_path):
-        self.module_path = module_path
+    def __init__(self, module_contents):
+        self.module_contents = module_contents.values()
 
     def run(self):
-        module_contents = ImportedModule(self.module_path).values()
-        self._run_contexts(module_contents)
+        self._run_contexts(self.module_contents)
 
     def _context_functions_in_module(self, module_contents):
         return [module_attribute
@@ -112,7 +111,7 @@ class Context:
 
 
 if __name__ == '__main__':
-    suite = SpecSuite(sys.argv[1])
+    suite = SpecSuite(ImportedModule(sys.argv[1]))
     suite.run()
     if suite.success:
         print 'All specs passed'
