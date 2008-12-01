@@ -28,3 +28,9 @@ def should_fail_when_spec_raises_assertion_error():
             assert 1 == 2
     assert fails(describe_with_test_that_raises_assertion_error)
 
+def should_fail_when_spec_raises_value_error():
+    def describe_with_test_that_raises_value_error():
+        def should_raise_error():
+            raise ValueError()
+    assert fails(describe_with_test_that_raises_value_error)
+
