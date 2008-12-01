@@ -69,17 +69,23 @@ class SpecSuite:
 
     def run(self):
         module_contents = ImportedModule(self.module_path).values()
-        self._run_cases(module_contents)
+        self._run_contexts(module_contents)
 
     def _context_functions_in_module(self, module_contents):
         return [module_attribute
                 for module_attribute in module_contents
                 if callable(module_attribute)]
 
-    def _run_cases(self, module_contents):
+    def _run_contexts(self, module_contents):
         context_functions = self._context_functions_in_module(module_contents)
         for context_function in context_functions:
-            Context(context_function).run()
+            context = Context(context_function)
+            context.run()
+            if not context.success:
+                self.success = False
+                return
+        else:
+            self.success = True
 
 
 class ImportedModule(dict):
@@ -92,16 +98,24 @@ class Context:
         self.context_function = context_function
 
     def run(self):
+        try:
+            self._run_all_cases()
+        except:
+            self.success = False
+        else:
+            self.success = True
+
+    def _run_all_cases(self):
         case_functions = LocalFunctions(self.context_function)
         for case_function in case_functions.values():
             case_function()
 
 
 if __name__ == '__main__':
-    try:
-        SpecSuite(sys.argv[1]).run()
-    except:
-        print 'Specs failed'
-    else:
+    suite = SpecSuite(sys.argv[1])
+    suite.run()
+    if suite.success:
         print 'All specs passed'
+    else:
+        print 'Specs failed'
 
