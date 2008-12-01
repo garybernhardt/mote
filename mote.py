@@ -68,8 +68,11 @@ class SpecSuite:
         self.module_path = module_path
 
     def run(self):
-        module = ImportedModule(self.module_path)
-        for module_attribute in module.values():
+        module_contents = ImportedModule(self.module_path)
+        self._run_cases(module_contents)
+
+    def _run_cases(self, module_contents):
+        for module_attribute in module_contents.values():
             if callable(module_attribute):
                 Context(module_attribute).run()
 
