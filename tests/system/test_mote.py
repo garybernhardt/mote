@@ -20,10 +20,10 @@ class SystemTest:
         file(self.test_file_path, 'w').write(content)
 
     def _succeeds(self):
-        return run_mote(self.test_file_path) == 'All specs passed\n'
+        return self._output() == 'All specs passed\n'
 
     def _fails(self):
-        return run_mote(self.test_file_path) == 'Specs failed\n'
+        return self._output() == 'Specs failed\n'
 
     def _output(self):
         return run_mote(self.test_file_path)
