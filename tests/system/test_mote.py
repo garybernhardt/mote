@@ -1,6 +1,7 @@
 import os
 import subprocess
 import tempfile
+import textwrap
 
 
 def run_mote(test_file_name):
@@ -17,6 +18,7 @@ class SystemTest:
         self.test_file_path = tempfile.mktemp('mote_system_test')
 
     def _write_test_file(self, content):
+        content = textwrap.dedent(content)
         file(self.test_file_path, 'w').write(content)
 
     def _succeeds(self):
@@ -36,25 +38,25 @@ class WhenRunningMote(SystemTest):
 
     def should_pass_with_one_test(self):
         self._write_test_file('''
-def describe_integers():
-    def should_add_correctly():
-        assert 1 + 1 == 2''')
+            def describe_integers():
+                def should_add_correctly():
+                    assert 1 + 1 == 2''')
         assert self._succeeds()
 
     def should_fail_when_spec_raises_assertion_error(self):
         self._write_test_file('''
-def describe_integers_incorrectly():
-    def should_add_incorrectly():
-        assert 1 + 1 == 3''')
+            def describe_integers_incorrectly():
+                def should_add_incorrectly():
+                    assert 1 + 1 == 3''')
         assert self._fails()
 
     def should_fail_when_spec_raises_unknown_error(self):
         self._write_test_file('''
-class FooException(Exception):
-    pass
-def describe_with_test_that_raises_value_error():
-    def should_raise_error():
-        raise ValueError()''')
+            class FooException(Exception):
+                pass
+            def describe_with_test_that_raises_value_error():
+                def should_raise_error():
+                    raise ValueError()''')
 
 
 class WhenTestsHaveDifferentOrders(SystemTest):
