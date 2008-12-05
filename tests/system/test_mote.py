@@ -2,6 +2,7 @@ import os
 import subprocess
 import tempfile
 import textwrap
+import re
 
 
 def run_mote(test_file_name):
@@ -57,6 +58,22 @@ class WhenRunningMote(SystemTest):
             def describe_with_test_that_raises_value_error():
                 def should_raise_error():
                     raise ValueError()''')
+
+    def should_rerun_context_for_each_test(self):
+        self._write_test_file(
+            '''
+            import itertools
+            iterator = itertools.count()
+            def describe_test_with_stateful_context():
+                value = iterator.next()
+                def should_use_object():
+                    print value
+                def should_use_different_object_on_second_run():
+                    print value
+            ''')
+        output = self._output()
+        printed_values = re.search(r'^(\d+)\n(\d+)\n', output).groups()
+        assert printed_values[1] > printed_values[0]
 
 
 class WhenTestsHaveDifferentOrders(SystemTest):

@@ -35,6 +35,11 @@ class LocalFunctions(list):
                 for name, local_obj in frame.f_locals.items()
                 if callable(local_obj)]
 
+    def function_with_name(self, name):
+        return [function
+                for function in self
+                if function.__name__ == name][0]
+
 
 class SortedFunctions(list):
     def __init__(self, functions):
@@ -71,6 +76,15 @@ class ImportedModule(dict):
         execfile(filename, self)
 
 
+class Case:
+    def __init__(self, context_function, case_name):
+        local_functions = LocalFunctions(context_function)
+        self.case_function = local_functions.function_with_name(case_name)
+
+    def run(self):
+        self.case_function()
+
+
 class Context:
     def __init__(self, context_function):
         self.context_function = context_function
@@ -86,8 +100,10 @@ class Context:
     def _run_all_cases(self):
         case_functions = LocalFunctions(self.context_function)
         case_functions = SortedFunctions(case_functions)
-        for case_function in case_functions:
-            case_function()
+        cases = [Case(self.context_function, case_function.__name__)
+                 for case_function in case_functions]
+        for case in cases:
+            case.run()
 
 
 if __name__ == '__main__':

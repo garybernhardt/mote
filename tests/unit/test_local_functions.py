@@ -25,6 +25,11 @@ class WhenExaminingFunctionWithALocalFunction(BaseFixture):
         local_function = self.local_functions[0]
         assert local_function() == 'local function return'
 
+    def should_return_functions_by_name(self):
+        local_function = self.local_functions.function_with_name(
+            'local_function')
+        assert local_function() == 'local function return'
+
 
 class WhenExaminingFunctionWithLocalVariables(BaseFixture):
     def setup(self):
