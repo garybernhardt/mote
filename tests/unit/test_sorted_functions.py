@@ -22,6 +22,3 @@ class WhenExaminingFunctionWithMultipleLocalFunctions(BaseFixture):
         functions = SortedFunctions(list(reversed(self.functions)))
         assert functions == [self.func1, self.func2]
 
-
-
-
