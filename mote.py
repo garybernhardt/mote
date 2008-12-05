@@ -36,6 +36,12 @@ class LocalFunctions(list):
                 if callable(local_obj)]
 
 
+class SortedFunctions(list):
+    def __init__(self, functions):
+        self.extend(sorted(functions,
+                           key=lambda fn: fn.func_code.co_firstlineno))
+
+
 class SpecSuite:
     def __init__(self, module_contents):
         self.module_contents = module_contents.values()
@@ -79,10 +85,8 @@ class Context:
 
     def _run_all_cases(self):
         case_functions = LocalFunctions(self.context_function)
-        sorted_case_functions = sorted(
-            case_functions,
-            key=lambda fn: fn.func_code.co_firstlineno)
-        for case_function in sorted_case_functions:
+        case_functions = SortedFunctions(case_functions)
+        for case_function in case_functions:
             case_function()
 
 
