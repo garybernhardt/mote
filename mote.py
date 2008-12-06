@@ -47,23 +47,29 @@ class SortedFunctions(list):
                            key=lambda fn: fn.func_code.co_firstlineno))
 
 
+class CasesFromContexts(list):
+    def __init__(self, contexts):
+        for context in contexts:
+            for case in context.collect_cases():
+                self.append(case)
+
+
 class SpecSuite:
     def __init__(self, module_contents):
         self.module_contents = module_contents.values()
 
     def run(self):
-        self._run_contexts(self.module_contents)
+        return list(self._run_contexts(self.module_contents))
 
     def _run_contexts(self, module_contents):
-        for context in self._contexts():
-            case_results = context.run()
-            cases_failed = any(not case_result.success
-                               for case_result in case_results)
-            if cases_failed:
+        cases = CasesFromContexts(list(self._contexts()))
+        for case in cases:
+            result = case.run()
+            yield result
+            if not result.success:
                 self.success = False
                 return
-        else:
-            self.success = True
+        self.success = True
 
     def _contexts(self):
         for context_function in self._context_functions():
@@ -112,15 +118,13 @@ class Context:
     def __init__(self, context_function):
         self.context_function = context_function
 
-    def run(self):
-        return self._run_all_cases()
-
-    def _run_all_cases(self):
+    def collect_cases(self):
         case_functions = LocalFunctions(self.context_function)
         case_functions = SortedFunctions(case_functions)
-        cases = [Case(self.context_function, case_function.__name__)
+        cases = [Case(self.context_function,
+                      case_function.__name__)
                  for case_function in case_functions]
-        return [case.run() for case in cases]
+        return cases
 
 
 if __name__ == '__main__':
