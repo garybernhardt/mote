@@ -54,15 +54,8 @@ class SpecSuite:
     def run(self):
         self._run_contexts(self.module_contents)
 
-    def _context_functions_in_module(self, module_contents):
-        return [module_attribute
-                for module_attribute in module_contents
-                if callable(module_attribute)]
-
     def _run_contexts(self, module_contents):
-        context_functions = self._context_functions_in_module(module_contents)
-        for context_function in context_functions:
-            context = Context(context_function)
+        for context in self._contexts():
             case_results = context.run()
             cases_failed = any(not case_result.success
                                for case_result in case_results)
@@ -71,6 +64,15 @@ class SpecSuite:
                 return
         else:
             self.success = True
+
+    def _contexts(self):
+        for context_function in self._context_functions():
+            yield Context(context_function)
+
+    def _context_functions(self):
+        return [module_attribute
+                for module_attribute in self.module_contents
+                if callable(module_attribute)]
 
 
 class ImportedModule(dict):
