@@ -8,6 +8,7 @@ BaseFixture = DingusFixture(SpecSuite)
 class WhenModuleContainsCallables(BaseFixture):
     def setup(self):
         super(WhenModuleContainsCallables, self).setup()
+        mote.Context.return_value.run.return_value = []
         self.context_function = lambda: None
         self.suite = SpecSuite(dict(context_function=self.context_function))
         self.suite.run()
@@ -32,6 +33,8 @@ class WhenModuleContainsVariables(BaseFixture):
 class WhenRunningPassingTests(BaseFixture):
     def setup(self):
         super(WhenRunningPassingTests, self).setup()
+        case_result = Dingus(success=True)
+        mote.Context.return_value.run.return_value = [case_result]
         self.suite = SpecSuite({})
         self.suite.run()
 
@@ -42,10 +45,13 @@ class WhenRunningPassingTests(BaseFixture):
 class WhenRunningFailingTests(BaseFixture):
     def setup(self):
         super(WhenRunningFailingTests, self).setup()
+        case_result = Dingus(success=False)
+        mote.Context.return_value.run.return_value = [case_result]
+
         self.context_function = lambda: None
-        mote.Context.return_value.success = False
         self.suite = SpecSuite(dict(context_function=self.context_function))
         self.suite.run()
 
     def should_indicate_failure(self):
         assert not self.suite.success
+

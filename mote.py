@@ -63,8 +63,10 @@ class SpecSuite:
         context_functions = self._context_functions_in_module(module_contents)
         for context_function in context_functions:
             context = Context(context_function)
-            context.run()
-            if not context.success:
+            case_results = context.run()
+            cases_failed = any(not case_result.success
+                               for case_result in case_results)
+            if cases_failed:
                 self.success = False
                 return
         else:
@@ -78,11 +80,30 @@ class ImportedModule(dict):
 
 class Case:
     def __init__(self, context_function, case_name):
+        self.case_name = case_name
         local_functions = LocalFunctions(context_function)
         self.case_function = local_functions.function_with_name(case_name)
 
     def run(self):
-        self.case_function()
+        try:
+            self.case_function()
+        except:
+            return CaseResult.failure(self.case_name)
+        else:
+            return CaseResult.success(self.case_name)
+
+
+class CaseResult:
+    def __init__(self, case_name, success):
+        self.success = success
+
+    @classmethod
+    def success(cls, case_name):
+        return cls(case_name, True)
+
+    @classmethod
+    def failure(cls, case_name):
+        return cls(case_name, False)
 
 
 class Context:
@@ -90,20 +111,14 @@ class Context:
         self.context_function = context_function
 
     def run(self):
-        try:
-            self._run_all_cases()
-        except:
-            self.success = False
-        else:
-            self.success = True
+        return self._run_all_cases()
 
     def _run_all_cases(self):
         case_functions = LocalFunctions(self.context_function)
         case_functions = SortedFunctions(case_functions)
         cases = [Case(self.context_function, case_function.__name__)
                  for case_function in case_functions]
-        for case in cases:
-            case.run()
+        return [case.run() for case in cases]
 
 
 if __name__ == '__main__':
