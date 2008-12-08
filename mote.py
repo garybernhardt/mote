@@ -146,7 +146,6 @@ class ResultPrinter:
         for context in contexts:
             sys.stdout.write('%s%s\n' % ('  ' * indentation,
                                          context.pretty_name))
-            self.print_context_results(context.contexts, indentation + 1)
             for case in context.cases:
                 if case.success:
                     status = 'ok'
@@ -157,6 +156,7 @@ class ResultPrinter:
                 sys.stdout.write('%s  %s -> %s\n' % ('  ' * indentation,
                                                    case.pretty_name,
                                                    status))
+            self.print_context_results(context.contexts, indentation + 1)
 
 
 if __name__ == '__main__':

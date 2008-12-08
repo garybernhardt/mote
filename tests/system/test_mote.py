@@ -161,6 +161,8 @@ class WhenContextsAreNested(SystemTest):
         self._write_test_file(
             '''
             def describe_integers():
+                def should_be_built_in():
+                    assert 'int' in __builtins__
                 def when_adding():
                     value = 1 + 1
                     def should_get_sum():
@@ -168,13 +170,13 @@ class WhenContextsAreNested(SystemTest):
             ''')
 
     def should_run_cases_in_nested_contexts(self):
-        self._assert_output_equals(dedent(
-            '''\
-            describe integers
-              when adding
-                should get sum -> ok
-            All specs passed
-            '''))
+        assert 'should get sum -> ok' in self._output()
+
+    def should_run_cases_before_contexts_within_same_parent_context(self):
+        output = self._output()
+        case_location = output.index('should be built in')
+        context_location = output.index('when adding')
+        assert case_location < context_location
 
 
 class WhenTestsHaveDifferentOrders(SystemTest):
