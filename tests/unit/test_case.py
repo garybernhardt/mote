@@ -43,6 +43,10 @@ class WhenTestFunctionRaisesException(DingusFixture(Case)):
         local_functions.function_with_name.return_value = exception_raiser(
             AssertionError)
 
+        traceback = Dingus()
+        traceback.tb_next.tb_lineno = 3
+        mote.sys.exc_info.return_value = (Dingus(), Dingus(), traceback)
+
         self.context_function, self.case_name = Dingus.many(2)
         self.case = Case(self.context_function, self.case_name)
 
@@ -51,4 +55,7 @@ class WhenTestFunctionRaisesException(DingusFixture(Case)):
 
     def should_store_exception(self):
         assert isinstance(self.case.exception, AssertionError)
+
+    def should_store_line_number(self):
+        assert self.case.exception_line == 3
 

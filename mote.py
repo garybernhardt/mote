@@ -97,6 +97,8 @@ class Case:
         try:
             self.case_function()
         except Exception, e:
+            exc_type, exc_value, traceback = sys.exc_info()
+            self.exception_line = traceback.tb_next.tb_lineno
             self.success = False
             self.exception = e
         else:
@@ -127,7 +129,9 @@ class ResultPrinter:
                 if case.success:
                     status = 'ok'
                 else:
-                    status = 'FAIL (%s)' % case.exception.__class__.__name__
+                    status = 'FAIL (%s @ %i)' % (
+                        case.exception.__class__.__name__,
+                        case.exception_line)
                 sys.stdout.write('  %s -> %s\n' % (case.pretty_name, status))
 
 
