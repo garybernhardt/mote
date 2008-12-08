@@ -21,7 +21,7 @@ class SystemTest(object):
         if output != expected_output:
             raise AssertionError(
                 'Expected output:\n---\n%s\n---\nbut got:\n---\n%s\n---\n' %
-                (output, expected_output))
+                (expected_output, output))
 
     def _assert_succeeds(self):
         self._assert_output_equals('All specs passed\n', '--quiet')
