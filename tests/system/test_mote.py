@@ -13,14 +13,21 @@ class SystemTest(object):
         content = dedent(content)
         file(self.test_file_path, 'w').write(content)
 
-    def _succeeds(self):
-        return self._output('--quiet') == 'All specs passed\n'
-
-    def _fails(self):
-        return self._output('--quiet') == 'Specs failed\n'
-
     def _output(self, *args):
         return self._run_mote(self.test_file_path, *args)
+
+    def _assert_output_equals(self, expected_output, *args):
+        output = self._output(*args)
+        if output != expected_output:
+            raise AssertionError(
+                'Expected output:\n---\n%s\n---\nbut got:\n---\n%s\n---\n' %
+                (output, expected_output))
+
+    def _assert_succeeds(self):
+        self._assert_output_equals('All specs passed\n', '--quiet')
+
+    def _assert_fails(self):
+        self._assert_output_equals('Specs failed\n', '--quiet')
 
     def _run_mote(self, test_file_name, *args):
         args = list(args)
@@ -41,7 +48,7 @@ class WhenRunningQuietly(SystemTest):
                 def should_add_correctly():
                     assert 1 + 1 == 2
             ''')
-        assert self._output('--quiet') == 'All specs passed\n'
+        self._assert_output_equals('All specs passed\n', '--quiet')
 
 
 class WhenCasesRaiseNoExceptions(SystemTest):
@@ -55,7 +62,7 @@ class WhenCasesRaiseNoExceptions(SystemTest):
             ''')
 
     def should_pass(self):
-        assert self._succeeds()
+        self._assert_succeeds()
 
     def should_output_spec(self):
         expected = dedent(
@@ -64,7 +71,7 @@ class WhenCasesRaiseNoExceptions(SystemTest):
               should add correctly -> ok
             All specs passed
             ''')
-        assert self._output() == expected
+        self._assert_output_equals(expected)
 
 
 class WhenCasesRaiseExceptions(SystemTest):
@@ -76,7 +83,7 @@ class WhenCasesRaiseExceptions(SystemTest):
                     assert 1 + 1 == 3''')
 
     def should_fail(self):
-        assert self._fails()
+        self._assert_fails()
 
     def should_output_spec_with_failures(self):
         expected = dedent(
@@ -85,13 +92,13 @@ class WhenCasesRaiseExceptions(SystemTest):
               should add incorrectly -> FAIL
             Specs failed
             ''')
-        assert self._output() == expected
+        self._assert_output_equals(expected)
 
 
 class WhenRunningMote(SystemTest):
     def should_pass_with_no_tests(self):
         self._write_test_file('')
-        assert self._succeeds()
+        self._assert_succeeds()
 
     def should_fail_when_spec_raises_unknown_error(self):
         self._write_test_file('''
