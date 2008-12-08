@@ -63,3 +63,6 @@ class WhenRunning(BaseFixture):
     def should_return_correct_number_of_cases(self):
         assert self.suite_result == self.cases
 
+    def should_expose_contexts(self):
+        assert self.suite.contexts is mote.ContextsFromModule.return_value
+

@@ -1,47 +1,74 @@
 import os
 import subprocess
 import tempfile
-import textwrap
+from textwrap import dedent
 import re
 
 
-def run_mote(test_file_name):
-    base_dir = os.path.dirname(__file__)
-    test_path = os.path.join(base_dir, test_file_name)
-    process = subprocess.Popen(['python', '-m', 'mote', test_path],
-                               stdout=subprocess.PIPE)
-    process.wait()
-    return process.stdout.read()
-
-
-class SystemTest:
+class SystemTest(object):
     def setup(self):
         self.test_file_path = tempfile.mktemp('mote_system_test')
 
     def _write_test_file(self, content):
-        content = textwrap.dedent(content)
+        content = dedent(content)
         file(self.test_file_path, 'w').write(content)
 
     def _succeeds(self):
-        return self._output() == 'All specs passed\n'
+        return self._output('--quiet') == 'All specs passed\n'
 
     def _fails(self):
-        return self._output() == 'Specs failed\n'
+        return self._output('--quiet') == 'Specs failed\n'
 
-    def _output(self):
-        return run_mote(self.test_file_path)
+    def _output(self, *args):
+        return self._run_mote(self.test_file_path, *args)
 
+    def _run_mote(self, test_file_name, *args):
+        args = list(args)
+        base_dir = os.path.dirname(__file__)
+        test_path = os.path.join(base_dir, test_file_name)
+        process = subprocess.Popen(['python', '-m', 'mote', test_path] + args,
+                                   stdout=subprocess.PIPE,
+                                   stderr=subprocess.STDOUT)
+        process.wait()
+        return process.stdout.read()
+
+
+class WhenRunningQuietly(SystemTest):
+    def should_only_output_result(self):
+        self._write_test_file(
+            '''
+            def describe_integers():
+                def should_add_correctly():
+                    assert 1 + 1 == 2
+            ''')
+        assert self._output('--quiet') == 'All specs passed\n'
+
+
+class WhenCasesRaiseNoExceptions(SystemTest):
+    def setup(self):
+        super(WhenCasesRaiseNoExceptions, self).setup()
+        self._write_test_file(
+            '''
+            def describe_integers():
+                def should_add_correctly():
+                    assert 1 + 1 == 2
+            ''')
+
+    def should_pass(self):
+        assert self._succeeds()
+
+    def should_output_spec(self):
+        expected = dedent(
+            '''\
+            describe_integers
+            should_add_correctly
+            All specs passed
+            ''')
+        assert self._output() == expected
 
 class WhenRunningMote(SystemTest):
     def should_pass_with_no_tests(self):
         self._write_test_file('')
-        assert self._succeeds()
-
-    def should_pass_with_one_test(self):
-        self._write_test_file('''
-            def describe_integers():
-                def should_add_correctly():
-                    assert 1 + 1 == 2''')
         assert self._succeeds()
 
     def should_fail_when_spec_raises_assertion_error(self):

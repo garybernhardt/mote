@@ -26,6 +26,9 @@ class WhenRunningContextFromFunction(BaseFixture):
     def should_sort_functions(self):
         assert mote.SortedFunctions.calls('()', [self.case_function])
 
+    def should_take_name_from_function(self):
+        assert self.context.name is self.context_function.__name__
+
 
 class WhenRunningMultipleCases(BaseFixture):
     def setup(self):

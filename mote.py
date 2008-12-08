@@ -1,3 +1,4 @@
+from optparse import OptionParser
 import sys
 
 
@@ -64,13 +65,13 @@ class ContextsFromModule(list):
 class SpecSuite:
     def __init__(self, module_contents):
         self.module_contents = module_contents.values()
+        self.contexts = ContextsFromModule(self.module_contents)
 
     def run(self):
         return list(self._run_contexts())
 
     def _run_contexts(self):
-        contexts = ContextsFromModule(self.module_contents)
-        cases = CasesFromContexts(contexts)
+        cases = CasesFromContexts(self.contexts)
         for case in cases:
             yield case
             if not case.success:
@@ -85,10 +86,10 @@ class ImportedModule(dict):
 
 
 class Case:
-    def __init__(self, context_function, case_name):
-        self.case_name = case_name
+    def __init__(self, context_function, name):
+        self.name = name
         local_functions = LocalFunctions(context_function)
-        self.case_function = local_functions.function_with_name(case_name)
+        self.case_function = local_functions.function_with_name(name)
         self._run()
 
     def _run(self):
@@ -103,6 +104,7 @@ class Case:
 class Context:
     def __init__(self, context_function):
         self.context_function = context_function
+        self.name = context_function.__name__
         self.cases = self._collect_cases()
 
     def _collect_cases(self):
@@ -114,9 +116,24 @@ class Context:
         return cases
 
 
+class ResultPrinter:
+    def __init__(self, contexts):
+        for context in contexts:
+            sys.stdout.write(context.name + '\n')
+            for case in context.cases:
+                sys.stdout.write(case.name + '\n')
+
+
 if __name__ == '__main__':
-    suite = SpecSuite(ImportedModule(sys.argv[1]))
+    parser = OptionParser()
+    parser.add_option('-q', '--quiet', action='store_true', dest='quiet')
+    options, args = parser.parse_args()
+
+    suite = SpecSuite(ImportedModule(args[0]))
     suite.run()
+    if not options.quiet:
+        ResultPrinter(suite.contexts)
+
     if suite.success:
         print 'All specs passed'
     else:
