@@ -3,8 +3,9 @@ import sys
 
 
 class LocalFunctions(list):
-    def __init__(self, function):
+    def __init__(self, function, prefix):
         self.function = function
+        self.prefix = prefix
         self._call_function_with_trace()
 
     def _call_function_with_trace(self):
@@ -30,11 +31,11 @@ class LocalFunctions(list):
         else:
             return None
 
-    @staticmethod
-    def _local_functions_in_frame(frame):
+    def _local_functions_in_frame(self, frame):
         return [local_obj
                 for name, local_obj in frame.f_locals.items()
-                if callable(local_obj)]
+                if callable(local_obj)
+                and local_obj.__name__.startswith(self.prefix)]
 
     def function_with_name(self, name):
         return [function
@@ -90,7 +91,7 @@ class Case:
     def __init__(self, context_function, name):
         self.name = name
         self.pretty_name = name.replace('_', ' ')
-        local_functions = LocalFunctions(context_function)
+        local_functions = LocalFunctions(context_function, name)
         self.case_function = local_functions.function_with_name(name)
         self._run()
 
@@ -114,7 +115,7 @@ class Context:
         self.cases = self._collect_cases()
 
     def _collect_cases(self):
-        case_functions = LocalFunctions(self.context_function)
+        case_functions = LocalFunctions(self.context_function, 'should_')
         case_functions = SortedFunctions(case_functions)
         cases = [Case(self.context_function,
                       case_function.__name__)

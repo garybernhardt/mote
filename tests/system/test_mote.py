@@ -138,11 +138,27 @@ class WhenRunningMote(SystemTest):
             All specs passed
             '''))
 
+    def should_only_include_cases_starting_with_describe(self):
+        self._write_test_file(
+            '''
+            def describe_foo():
+                def should_do_something():
+                    pass
+                def some_callable():
+                    pass
+            ''')
+        self._assert_output_equals(dedent(
+            '''\
+            describe foo
+              should do something -> ok
+            All specs passed
+            '''))
+
 
 class WhenTestsHaveDifferentOrders(SystemTest):
     CONTEXT_DEF = 'def describe_ordered_tests():'
-    FIRST_TEST_DEF = '    def first_test(): print "%s"'
-    SECOND_TEST_DEF = '    def second_test(): print "%s"'
+    FIRST_TEST_DEF = '    def should_do_first_test(): print "%s"'
+    SECOND_TEST_DEF = '    def should_do_second_test(): print "%s"'
 
     def should_run_tests_in_order(self):
         self._write_test_file('\n'.join([self.CONTEXT_DEF,

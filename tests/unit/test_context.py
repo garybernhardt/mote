@@ -22,7 +22,9 @@ class WhenRunningContextFromFunction(BaseFixture):
         self._run_context_with_case_function(self.case_function)
 
     def should_extract_spec_cases(self):
-        assert mote.LocalFunctions.calls('()', self.context_function)
+        assert mote.LocalFunctions.calls('()',
+                                         self.context_function,
+                                         'should_')
 
     def should_sort_functions(self):
         assert mote.SortedFunctions.calls('()', [self.case_function])

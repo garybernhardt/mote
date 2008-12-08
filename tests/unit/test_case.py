@@ -1,4 +1,4 @@
-from dingus import Dingus, DingusFixture, exception_raiser
+from dingus import Dingus, DingusFixture, exception_raiser, DontCare
 import mote
 from mote import Case
 
@@ -11,7 +11,9 @@ class WhenRunningCase(DingusFixture(Case)):
         self.case = Case(self.context_function, self.case_name)
 
     def should_get_local_functions_from_context_to_ensure_isolation(self):
-        assert mote.LocalFunctions.calls('()', self.context_function).one()
+        assert mote.LocalFunctions.calls('()',
+                                         self.context_function,
+                                         self.case_name).one()
 
     def should_run_cases_with_fresh_context(self):
         local_functions = mote.LocalFunctions.return_value
