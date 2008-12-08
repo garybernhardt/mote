@@ -123,7 +123,8 @@ class ResultPrinter:
         for context in contexts:
             sys.stdout.write('%s\n' % context.pretty_name)
             for case in context.cases:
-                sys.stdout.write('  %s\n' % case.pretty_name)
+                status = 'ok' if case.success else 'FAIL'
+                sys.stdout.write('  %s -> %s\n' % (case.pretty_name, status))
 
 
 if __name__ == '__main__':

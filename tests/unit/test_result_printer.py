@@ -11,9 +11,9 @@ class WithPatchedStdOut(DingusFixture(ResultPrinter)):
         mote.sys = Dingus()
 
 
-class WhenGivenResults(WithPatchedStdOut):
+class WhenCasesPass(WithPatchedStdOut):
     def setup(self):
-        super(WhenGivenResults, self).setup()
+        super(WhenCasesPass, self).setup()
         self.case = Dingus(pretty_name='should frob')
         self.context = Dingus(pretty_name='describe frobber',
                               cases=[self.case])
@@ -23,5 +23,18 @@ class WhenGivenResults(WithPatchedStdOut):
         assert mote.sys.stdout.calls('write', 'describe frobber\n').one()
 
     def should_print_case_name(self):
-        assert mote.sys.stdout.calls('write', '  should frob\n').one()
+        assert mote.sys.stdout.calls('write', '  should frob -> ok\n').one()
+
+
+class WhenCasesFail(WithPatchedStdOut):
+    def setup(self):
+        super(WhenCasesFail, self).setup()
+        self.case = Dingus(pretty_name='should frob',
+                           success=False)
+        self.context = Dingus(pretty_name='describe frobber',
+                              cases=[self.case])
+        ResultPrinter([self.context])
+
+    def should_print_case_name(self):
+        assert mote.sys.stdout.calls('write', '  should frob -> FAIL\n').one()
 

@@ -61,8 +61,29 @@ class WhenCasesRaiseNoExceptions(SystemTest):
         expected = dedent(
             '''\
             describe integers
-              should add correctly
+              should add correctly -> ok
             All specs passed
+            ''')
+        assert self._output() == expected
+
+
+class WhenCasesRaiseExceptions(SystemTest):
+    def setup(self):
+        super(WhenCasesRaiseExceptions, self).setup()
+        self._write_test_file('''
+            def describe_integers_incorrectly():
+                def should_add_incorrectly():
+                    assert 1 + 1 == 3''')
+
+    def should_fail(self):
+        assert self._fails()
+
+    def should_output_spec_with_failures(self):
+        expected = dedent(
+            '''\
+            describe integers incorrectly
+              should add incorrectly -> FAIL
+            Specs failed
             ''')
         assert self._output() == expected
 
@@ -71,13 +92,6 @@ class WhenRunningMote(SystemTest):
     def should_pass_with_no_tests(self):
         self._write_test_file('')
         assert self._succeeds()
-
-    def should_fail_when_spec_raises_assertion_error(self):
-        self._write_test_file('''
-            def describe_integers_incorrectly():
-                def should_add_incorrectly():
-                    assert 1 + 1 == 3''')
-        assert self._fails()
 
     def should_fail_when_spec_raises_unknown_error(self):
         self._write_test_file('''
