@@ -64,9 +64,8 @@ class SpecSuite:
     def _run_contexts(self, module_contents):
         cases = CasesFromContexts(list(self._contexts()))
         for case in cases:
-            result = case.run()
-            yield result
-            if not result.success:
+            yield case
+            if not case.success:
                 self.success = False
                 return
         self.success = True
@@ -91,27 +90,15 @@ class Case:
         self.case_name = case_name
         local_functions = LocalFunctions(context_function)
         self.case_function = local_functions.function_with_name(case_name)
+        self._run()
 
-    def run(self):
+    def _run(self):
         try:
             self.case_function()
         except:
-            return CaseResult.failure(self.case_name)
+            self.success = False
         else:
-            return CaseResult.success(self.case_name)
-
-
-class CaseResult:
-    def __init__(self, case_name, success):
-        self.success = success
-
-    @classmethod
-    def success(cls, case_name):
-        return cls(case_name, True)
-
-    @classmethod
-    def failure(cls, case_name):
-        return cls(case_name, False)
+            self.success = True
 
 
 class Context:

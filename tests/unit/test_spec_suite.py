@@ -35,9 +35,7 @@ class WhenModuleContainsVariables(BaseFixture):
 class WhenRunningPassingTests(BaseFixture):
     def setup(self):
         super(WhenRunningPassingTests, self).setup()
-        case_result = Dingus(success=True)
-        case = Dingus()
-        case.run.return_value = case_result
+        case = Dingus(success=True)
         mote.CasesFromContexts.return_value = [case]
         self.suite = SpecSuite({})
         self.suite.run()
@@ -49,9 +47,7 @@ class WhenRunningPassingTests(BaseFixture):
 class WhenRunningFailingTests(BaseFixture):
     def setup(self):
         super(WhenRunningFailingTests, self).setup()
-        case_result = Dingus(success=False)
-        case = Dingus()
-        case.run.return_value = case_result
+        case = Dingus(success=False)
         mote.CasesFromContexts.return_value = [case]
 
         self.context_function = lambda: None
@@ -65,16 +61,13 @@ class WhenRunningFailingTests(BaseFixture):
 class WhenRunning(BaseFixture):
     def setup(self):
         super(WhenRunning, self).setup()
-        self.cases = Dingus.many(2)
+        self.cases = [Dingus(success=True) for _ in range(2)]
         mote.CasesFromContexts.return_value = self.cases
 
         self.context_function = lambda: None
         self.suite = SpecSuite(dict(context_function=self.context_function))
-        self.case_results = self.suite.run()
+        self.suite_result = self.suite.run()
 
-    def should_run_cases(self):
-        assert all(case.calls('run') for case in self.cases)
-
-    def should_return_correct_number_of_case_results(self):
-        assert len(self.case_results) == len(self.cases)
+    def should_return_correct_number_of_cases(self):
+        assert self.suite_result == self.cases
 

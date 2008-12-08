@@ -8,7 +8,6 @@ class WhenRunningCase(DingusFixture(Case)):
         super(WhenRunningCase, self).setup()
         self.context_function, self.case_name = Dingus.many(2)
         case = Case(self.context_function, self.case_name)
-        case.run()
 
     def should_get_local_functions_from_context_to_ensure_isolation(self):
         assert mote.LocalFunctions.calls('()', self.context_function).one()
@@ -24,14 +23,10 @@ class WhenTestFunctionRaisesNoException(DingusFixture(Case)):
     def setup(self):
         super(WhenTestFunctionRaisesNoException, self).setup()
         self.context_function, self.case_name = Dingus.many(2)
-        case = Case(self.context_function, self.case_name)
-        self.case_result = case.run()
+        self.case = Case(self.context_function, self.case_name)
 
-    def should_return_successful_case_results(self):
-        assert self.case_result is mote.CaseResult.success.return_value
-
-    def should_include_name_in_case_result(self):
-        assert mote.CaseResult.calls('success', self.case_name).one()
+    def should_run_successfully(self):
+        assert self.case.success
 
 
 class WhenTestFunctionRaisesException(DingusFixture(Case)):
@@ -42,12 +37,8 @@ class WhenTestFunctionRaisesException(DingusFixture(Case)):
             AssertionError)
 
         self.context_function, self.case_name = Dingus.many(2)
-        case = Case(self.context_function, self.case_name)
-        self.case_result = case.run()
+        self.case = Case(self.context_function, self.case_name)
 
-    def should_return_failed_case_results(self):
-        assert self.case_result is mote.CaseResult.failure.return_value
-
-    def should_include_name_in_case_result(self):
-        assert mote.CaseResult.calls('failure', self.case_name).one()
+    def should_fail(self):
+        assert not self.case.success
 
