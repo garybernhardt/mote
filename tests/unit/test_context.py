@@ -12,7 +12,6 @@ class BaseFixture(DingusFixture(Context)):
         mote.LocalFunctions.return_value = [self.case_function]
         mote.SortedFunctions.return_value = [self.case_function]
         self.context = Context(self.context_function)
-        self.cases = self.context.collect_cases()
 
 
 class WhenRunningContextFromFunction(BaseFixture):
@@ -34,8 +33,7 @@ class WhenRunningMultipleCases(BaseFixture):
         self.context_function = Dingus()
         self.case_functions = [Dingus(), Dingus()]
         mote.SortedFunctions.return_value = self.case_functions
-        context = Context(self.context_function)
-        self.cases = context.collect_cases()
+        self.context = Context(self.context_function)
 
     def should_create_cases(self):
         assert all(mote.Case.calls('()',
@@ -44,5 +42,5 @@ class WhenRunningMultipleCases(BaseFixture):
                    for case_function in self.case_functions)
 
     def should_return_correct_number_of_cases(self):
-        assert len(self.cases) == len(self.case_functions)
+        assert len(self.context.cases) == len(self.case_functions)
 

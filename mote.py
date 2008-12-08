@@ -50,7 +50,7 @@ class SortedFunctions(list):
 class CasesFromContexts(list):
     def __init__(self, contexts):
         for context in contexts:
-            for case in context.collect_cases():
+            for case in context.cases:
                 self.append(case)
 
 
@@ -117,8 +117,9 @@ class CaseResult:
 class Context:
     def __init__(self, context_function):
         self.context_function = context_function
+        self.cases = self._collect_cases()
 
-    def collect_cases(self):
+    def _collect_cases(self):
         case_functions = LocalFunctions(self.context_function)
         case_functions = SortedFunctions(case_functions)
         cases = [Case(self.context_function,
