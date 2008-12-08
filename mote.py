@@ -96,8 +96,9 @@ class Case:
     def _run(self):
         try:
             self.case_function()
-        except:
+        except Exception, e:
             self.success = False
+            self.exception = e
         else:
             self.success = True
 
@@ -123,7 +124,10 @@ class ResultPrinter:
         for context in contexts:
             sys.stdout.write('%s\n' % context.pretty_name)
             for case in context.cases:
-                status = 'ok' if case.success else 'FAIL'
+                if case.success:
+                    status = 'ok'
+                else:
+                    status = 'FAIL (%s)' % case.exception.__class__.__name__
                 sys.stdout.write('  %s -> %s\n' % (case.pretty_name, status))
 
 

@@ -30,11 +30,15 @@ class WhenCasesFail(WithPatchedStdOut):
     def setup(self):
         super(WhenCasesFail, self).setup()
         self.case = Dingus(pretty_name='should frob',
-                           success=False)
+                           success=False,
+                           exception=AssertionError())
         self.context = Dingus(pretty_name='describe frobber',
                               cases=[self.case])
         ResultPrinter([self.context])
 
-    def should_print_case_name(self):
-        assert mote.sys.stdout.calls('write', '  should frob -> FAIL\n').one()
+    def should_print_failure_message(self):
+        print mote.sys.stdout.calls
+        assert mote.sys.stdout.calls(
+            'write',
+            '  should frob -> FAIL (AssertionError)\n').one()
 

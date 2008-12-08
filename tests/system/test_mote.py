@@ -89,7 +89,7 @@ class WhenCasesRaiseExceptions(SystemTest):
         expected = dedent(
             '''\
             describe integers incorrectly
-              should add incorrectly -> FAIL
+              should add incorrectly -> FAIL (AssertionError)
             Specs failed
             ''')
         self._assert_output_equals(expected)

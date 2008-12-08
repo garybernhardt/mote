@@ -49,3 +49,6 @@ class WhenTestFunctionRaisesException(DingusFixture(Case)):
     def should_fail(self):
         assert not self.case.success
 
+    def should_store_exception(self):
+        assert isinstance(self.case.exception, AssertionError)
+
