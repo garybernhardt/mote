@@ -3,17 +3,28 @@ import mote
 from mote import ContextsFromModule
 
 
-class WhenModuleContainsCallables(DingusFixture(ContextsFromModule)):
+class WhenModuleContainsContextFunctions(DingusFixture(ContextsFromModule)):
     def setup(self):
-        super(WhenModuleContainsCallables, self).setup()
-        self.context_function = lambda: None
-        self.contexts = ContextsFromModule([self.context_function])
+        super(WhenModuleContainsContextFunctions, self).setup()
+        self.describe_foo = lambda: None
+        self.describe_foo.__name__ = 'describe_foo'
+        self.contexts = ContextsFromModule([self.describe_foo])
 
     def should_create_context_(self):
-        assert mote.Context.calls('()', self.context_function)
+        assert mote.Context.calls('()', self.describe_foo)
 
     def should_include_context_function(self):
         assert self.contexts == [mote.Context.return_value]
+
+
+class WhenModuleContainsOtherCallables(DingusFixture(ContextsFromModule)):
+    def setup(self):
+        super(WhenModuleContainsOtherCallables, self).setup()
+        self.some_function = lambda: None
+        self.contexts = ContextsFromModule([self.some_function])
+
+    def should_not_include_other_functions(self):
+        assert self.contexts == []
 
 
 class WhenModuleContainsVariables(DingusFixture(ContextsFromModule)):

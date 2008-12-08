@@ -124,6 +124,20 @@ class WhenRunningMote(SystemTest):
         printed_values = re.search(r'^(\d+)\n(\d+)\n', output).groups()
         assert printed_values[1] > printed_values[0]
 
+    def should_only_include_contexts_starting_with_describe(self):
+        self._write_test_file(
+            '''
+            def some_callable():
+                pass
+            def describe_foo():
+                pass
+            ''')
+        self._assert_output_equals(dedent(
+            '''\
+            describe foo
+            All specs passed
+            '''))
+
 
 class WhenTestsHaveDifferentOrders(SystemTest):
     CONTEXT_DEF = 'def describe_ordered_tests():'

@@ -59,7 +59,8 @@ class ContextsFromModule(list):
     def __init__(self, module_contents):
         self.extend(Context(attribute)
                     for attribute in module_contents
-                    if callable(attribute))
+                    if callable(attribute)
+                    and attribute.__name__.startswith('describe_'))
 
 
 class SpecSuite:
