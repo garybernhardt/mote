@@ -54,30 +54,29 @@ class CasesFromContexts(list):
                 self.append(case)
 
 
+class ContextsFromModule(list):
+    def __init__(self, module_contents):
+        self.extend(Context(attribute)
+                    for attribute in module_contents
+                    if callable(attribute))
+
+
 class SpecSuite:
     def __init__(self, module_contents):
         self.module_contents = module_contents.values()
 
     def run(self):
-        return list(self._run_contexts(self.module_contents))
+        return list(self._run_contexts())
 
-    def _run_contexts(self, module_contents):
-        cases = CasesFromContexts(list(self._contexts()))
+    def _run_contexts(self):
+        contexts = ContextsFromModule(self.module_contents)
+        cases = CasesFromContexts(contexts)
         for case in cases:
             yield case
             if not case.success:
                 self.success = False
                 return
         self.success = True
-
-    def _contexts(self):
-        for context_function in self._context_functions():
-            yield Context(context_function)
-
-    def _context_functions(self):
-        return [module_attribute
-                for module_attribute in self.module_contents
-                if callable(module_attribute)]
 
 
 class ImportedModule(dict):

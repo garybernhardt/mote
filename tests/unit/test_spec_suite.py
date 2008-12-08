@@ -9,27 +9,19 @@ BaseFixture = DingusFixture(SpecSuite)
 class WhenModuleContainsCallables(BaseFixture):
     def setup(self):
         super(WhenModuleContainsCallables, self).setup()
+        mote.ContextsFromModule.return_value = []
         mote.CasesFromContexts.return_value = []
-        self.context_function = lambda: None
-        self.suite = SpecSuite(dict(context_function=self.context_function))
+        self.module_contents = Dingus()
+        self.suite = SpecSuite(self.module_contents)
         self.suite.run()
 
-    def should_create_context_(self):
-        assert mote.Context.calls('()', self.context_function)
+    def should_collect_contexts_from_module(self):
+        assert mote.ContextsFromModule.calls(
+            '()', self.module_contents.values.return_value)
 
     def should_collect_cases_from_contexts(self):
-        assert mote.CasesFromContexts.calls('()', [mote.Context.return_value])
-
-
-class WhenModuleContainsVariables(BaseFixture):
-    def setup(self):
-        super(WhenModuleContainsVariables, self).setup()
-        mote.CasesFromContexts.return_value = []
-        self.suite = SpecSuite(dict(variable=1))
-        self.suite.run()
-
-    def should_not_try_to_collect_tests_from_noncallables(self):
-        assert not mote.LocalFunctions.calls('()')
+        assert mote.CasesFromContexts.calls(
+            '()', mote.ContextsFromModule.return_value)
 
 
 class WhenRunningPassingTests(BaseFixture):
