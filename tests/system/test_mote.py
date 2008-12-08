@@ -60,11 +60,12 @@ class WhenCasesRaiseNoExceptions(SystemTest):
     def should_output_spec(self):
         expected = dedent(
             '''\
-            describe_integers
-            should_add_correctly
+            describe integers
+              should add correctly
             All specs passed
             ''')
         assert self._output() == expected
+
 
 class WhenRunningMote(SystemTest):
     def should_pass_with_no_tests(self):

@@ -119,9 +119,9 @@ class Context:
 class ResultPrinter:
     def __init__(self, contexts):
         for context in contexts:
-            sys.stdout.write(context.name + '\n')
+            sys.stdout.write(context.name.replace('_', ' ') + '\n')
             for case in context.cases:
-                sys.stdout.write(case.name + '\n')
+                sys.stdout.write('  %s\n' % case.name.replace('_', ' '))
 
 
 if __name__ == '__main__':

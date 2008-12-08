@@ -14,13 +14,14 @@ class WithPatchedStdOut(DingusFixture(ResultPrinter)):
 class WhenGivenResults(WithPatchedStdOut):
     def setup(self):
         super(WhenGivenResults, self).setup()
-        self.case = Dingus()
-        self.context = Dingus(cases=[self.case])
+        self.case = Dingus(name='should_frob')
+        self.context = Dingus(name='describe_frobber',
+                              cases=[self.case])
         ResultPrinter([self.context])
 
     def should_print_context_name(self):
-        assert mote.sys.stdout.calls('write', self.context.name + '\n').one()
+        assert mote.sys.stdout.calls('write', 'describe frobber\n').one()
 
     def should_print_case_name(self):
-        assert mote.sys.stdout.calls('write', self.case.name + '\n').one()
+        assert mote.sys.stdout.calls('write', '  should frob\n').one()
 
