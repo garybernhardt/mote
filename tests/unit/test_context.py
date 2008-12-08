@@ -9,6 +9,7 @@ class BaseFixture(DingusFixture(Context)):
 
     def _run_context_with_case_function(self, case_function):
         self.context_function = Dingus()
+        self.context_function.__name__ = 'test_context_function'
         mote.LocalFunctions.return_value = [self.case_function]
         mote.SortedFunctions.return_value = [self.case_function]
         self.context = Context(self.context_function)
@@ -27,7 +28,10 @@ class WhenRunningContextFromFunction(BaseFixture):
         assert mote.SortedFunctions.calls('()', [self.case_function])
 
     def should_take_name_from_function(self):
-        assert self.context.name is self.context_function.__name__
+        assert self.context.name == 'test_context_function'
+
+    def should_have_pretty_name(self):
+        assert self.context.pretty_name == 'test context function'
 
 
 class WhenRunningMultipleCases(BaseFixture):

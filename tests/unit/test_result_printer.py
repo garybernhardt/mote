@@ -14,8 +14,8 @@ class WithPatchedStdOut(DingusFixture(ResultPrinter)):
 class WhenGivenResults(WithPatchedStdOut):
     def setup(self):
         super(WhenGivenResults, self).setup()
-        self.case = Dingus(name='should_frob')
-        self.context = Dingus(name='describe_frobber',
+        self.case = Dingus(pretty_name='should frob')
+        self.context = Dingus(pretty_name='describe frobber',
                               cases=[self.case])
         ResultPrinter([self.context])
 

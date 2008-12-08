@@ -6,8 +6,9 @@ from mote import Case
 class WhenRunningCase(DingusFixture(Case)):
     def setup(self):
         super(WhenRunningCase, self).setup()
-        self.context_function, self.case_name = Dingus.many(2)
-        case = Case(self.context_function, self.case_name)
+        self.context_function = Dingus()
+        self.case_name = 'test_case_name'
+        self.case = Case(self.context_function, self.case_name)
 
     def should_get_local_functions_from_context_to_ensure_isolation(self):
         assert mote.LocalFunctions.calls('()', self.context_function).one()
@@ -17,6 +18,12 @@ class WhenRunningCase(DingusFixture(Case)):
         case_function = local_functions.calls(
             'function_with_name', self.case_name).one().return_value
         assert case_function.calls('()').one()
+
+    def should_have_name(self):
+        assert self.case.name == 'test_case_name'
+
+    def should_have_pretty_name(self):
+        assert self.case.pretty_name == 'test case name'
 
 
 class WhenTestFunctionRaisesNoException(DingusFixture(Case)):

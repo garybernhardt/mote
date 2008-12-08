@@ -88,6 +88,7 @@ class ImportedModule(dict):
 class Case:
     def __init__(self, context_function, name):
         self.name = name
+        self.pretty_name = name.replace('_', ' ')
         local_functions = LocalFunctions(context_function)
         self.case_function = local_functions.function_with_name(name)
         self._run()
@@ -105,6 +106,7 @@ class Context:
     def __init__(self, context_function):
         self.context_function = context_function
         self.name = context_function.__name__
+        self.pretty_name = self.name.replace('_', ' ')
         self.cases = self._collect_cases()
 
     def _collect_cases(self):
@@ -119,9 +121,9 @@ class Context:
 class ResultPrinter:
     def __init__(self, contexts):
         for context in contexts:
-            sys.stdout.write(context.name.replace('_', ' ') + '\n')
+            sys.stdout.write('%s\n' % context.pretty_name)
             for case in context.cases:
-                sys.stdout.write('  %s\n' % case.name.replace('_', ' '))
+                sys.stdout.write('  %s\n' % case.pretty_name)
 
 
 if __name__ == '__main__':
