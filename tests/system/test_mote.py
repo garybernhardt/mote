@@ -155,6 +155,28 @@ class WhenRunningMote(SystemTest):
             '''))
 
 
+class WhenContextsAreNested(SystemTest):
+    def setup(self):
+        super(WhenContextsAreNested, self).setup()
+        self._write_test_file(
+            '''
+            def describe_integers():
+                def when_adding():
+                    value = 1 + 1
+                    def should_get_sum():
+                        assert value == 2
+            ''')
+
+    def should_run_cases_in_nested_contexts(self):
+        self._assert_output_equals(dedent(
+            '''\
+            describe integers
+              when adding
+                should get sum -> ok
+            All specs passed
+            '''))
+
+
 class WhenTestsHaveDifferentOrders(SystemTest):
     CONTEXT_DEF = 'def describe_ordered_tests():'
     FIRST_TEST_DEF = '    def should_do_first_test(): print "%s"'

@@ -57,3 +57,18 @@ class WhenExtractingCases(BaseFixture):
         assert (len(self.local_functions) == 1 and
                 self.local_functions[0].__name__ == 'should_do_something')
 
+
+class WhenExtractingContexts(BaseFixture):
+    def setup(self):
+        super(WhenExtractingContexts, self).setup()
+        def context_function():
+            def when_doing_something(): pass
+            def some_function(): pass
+
+        self.local_functions = LocalFunctions.context_functions(
+            context_function)
+
+    def should_only_include_context_functions(self):
+        assert (len(self.local_functions) == 1 and
+                self.local_functions[0].__name__ == 'when_doing_something')
+

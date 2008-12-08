@@ -12,6 +12,10 @@ class LocalFunctions(list):
     def case_functions(cls, context_function):
         return cls(context_function, 'should_')
 
+    @classmethod
+    def context_functions(cls, context_function):
+        return cls(context_function, 'when_')
+
     def _call_function_with_trace(self):
         sys.settrace(self._trace)
         self.function()
@@ -117,6 +121,13 @@ class Context:
         self.name = context_function.__name__
         self.pretty_name = self.name.replace('_', ' ')
         self.cases = self._collect_cases()
+        self.contexts = self._collect_contexts()
+
+    def _collect_contexts(self):
+        local_functions = LocalFunctions.context_functions(
+            self.context_function)
+        sorted_functions = SortedFunctions(local_functions)
+        return [Context(function) for function in sorted_functions]
 
     def _collect_cases(self):
         case_functions = LocalFunctions.case_functions(self.context_function)
@@ -129,8 +140,13 @@ class Context:
 
 class ResultPrinter:
     def __init__(self, contexts):
+        self.print_context_results(contexts)
+
+    def print_context_results(self, contexts, indentation=0):
         for context in contexts:
-            sys.stdout.write('%s\n' % context.pretty_name)
+            sys.stdout.write('%s%s\n' % ('  ' * indentation,
+                                         context.pretty_name))
+            self.print_context_results(context.contexts, indentation + 1)
             for case in context.cases:
                 if case.success:
                     status = 'ok'
@@ -138,7 +154,9 @@ class ResultPrinter:
                     status = 'FAIL (%s @ %i)' % (
                         case.exception.__class__.__name__,
                         case.exception_line)
-                sys.stdout.write('  %s -> %s\n' % (case.pretty_name, status))
+                sys.stdout.write('%s  %s -> %s\n' % ('  ' * indentation,
+                                                   case.pretty_name,
+                                                   status))
 
 
 if __name__ == '__main__':
