@@ -10,7 +10,7 @@ class BaseFixture(DingusFixture(Context)):
     def _run_context_with_case_function(self, case_function):
         self.context_function = Dingus()
         self.context_function.__name__ = 'test_context_function'
-        mote.LocalFunctions.return_value = [self.case_function]
+        mote.LocalFunctions.case_functions.return_value = [self.case_function]
         mote.SortedFunctions.return_value = [self.case_function]
         self.context = Context(self.context_function)
 
@@ -22,9 +22,8 @@ class WhenRunningContextFromFunction(BaseFixture):
         self._run_context_with_case_function(self.case_function)
 
     def should_extract_spec_cases(self):
-        assert mote.LocalFunctions.calls('()',
-                                         self.context_function,
-                                         'should_')
+        assert mote.LocalFunctions.calls('case_functions',
+                                         self.context_function)
 
     def should_sort_functions(self):
         assert mote.SortedFunctions.calls('()', [self.case_function])

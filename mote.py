@@ -8,6 +8,10 @@ class LocalFunctions(list):
         self.prefix = prefix
         self._call_function_with_trace()
 
+    @classmethod
+    def case_functions(cls, context_function):
+        return cls(context_function, 'should_')
+
     def _call_function_with_trace(self):
         sys.settrace(self._trace)
         self.function()
@@ -115,7 +119,7 @@ class Context:
         self.cases = self._collect_cases()
 
     def _collect_cases(self):
-        case_functions = LocalFunctions(self.context_function, 'should_')
+        case_functions = LocalFunctions.case_functions(self.context_function)
         case_functions = SortedFunctions(case_functions)
         cases = [Case(self.context_function,
                       case_function.__name__)

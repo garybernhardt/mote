@@ -44,21 +44,16 @@ class WhenExaminingFunctionWithLocalVariables(BaseFixture):
         assert not self.local_functions
 
 
-class WhenGivenAFunctionPrefix(BaseFixture):
+class WhenExtractingCases(BaseFixture):
     def setup(self):
-        super(WhenGivenAFunctionPrefix, self).setup()
-        def prefixed_function():
-            pass
-        def not_prefixed_function():
-            pass
-        self.prefixed_function = prefixed_function
-        self.not_prefixed_function = not_prefixed_function
-        def function():
-            prefixed_function = self.prefixed_function
-            not_prefixed_function = self.not_prefixed_function
+        super(WhenExtractingCases, self).setup()
+        def context_function():
+            def should_do_something(): pass
+            def some_function(): pass
 
-        self.local_functions = LocalFunctions(function, 'prefixed_')
+        self.local_functions = LocalFunctions.case_functions(context_function)
 
     def should_only_include_functions_starting_with_the_prefix(self):
-        assert self.local_functions == [self.prefixed_function]
+        assert (len(self.local_functions) == 1 and
+                self.local_functions[0].__name__ == 'should_do_something')
 
