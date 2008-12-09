@@ -139,8 +139,10 @@ class Context:
 
 
 class ResultPrinter:
+    PADDING_PER_LINE = '  '
+
     def __init__(self, contexts):
-        self._print_contexts(contexts, 0)
+        self._print_contexts(contexts, '')
 
     def _case_status(self, case):
         if case.success:
@@ -150,18 +152,19 @@ class ResultPrinter:
             exception_line = case.exception_line
             return 'FAIL (%s @ %i)' % (exception_name, exception_line)
 
-    def _print_cases(self, cases, indentation):
+    def _print_cases(self, cases, padding):
         for case in cases:
-            sys.stdout.write('%s  %s -> %s\n' % ('  ' * indentation,
+            sys.stdout.write('%s  %s -> %s\n' % (padding,
                                                  case.pretty_name,
                                                  self._case_status(case)))
 
-    def _print_contexts(self, contexts, indentation):
+    def _print_contexts(self, contexts, padding):
         for context in contexts:
-            sys.stdout.write('%s%s\n' % ('  ' * indentation,
+            sys.stdout.write('%s%s\n' % (padding,
                                          context.pretty_name))
-            self._print_cases(context.cases, indentation)
-            self._print_contexts(context.contexts, indentation + 1)
+            self._print_cases(context.cases, padding)
+            self._print_contexts(context.contexts,
+                                 padding + self.PADDING_PER_LINE)
 
 
 if __name__ == '__main__':
