@@ -8,24 +8,15 @@ from mote import LocalFunctions
 class BaseFixture(DingusFixture(LocalFunctions)):
     def setup(self):
         super(BaseFixture, self).setup()
-        mote.sys = sys
 
 
 class WhenExaminingFunctionWithALocalFunction(BaseFixture):
     def setup(self):
         super(WhenExaminingFunctionWithALocalFunction, self).setup()
-        def function():
-            def local_function():
-                return 'local function return'
-
-        self.local_functions = LocalFunctions(function, '')
-
-    def should_have_correct_number_of_local_function(self):
-        assert len(self.local_functions) == 1
-
-    def should_find_local_function_object(self):
-        local_function = self.local_functions[0]
-        assert local_function() == 'local function return'
+        def local_function():
+            return 'local function return'
+        mote.FunctionLocals.return_value = [local_function]
+        self.local_functions = LocalFunctions(Dingus(), '')
 
     def should_return_functions_by_name(self):
         local_function = self.local_functions.function_with_name(
@@ -36,22 +27,22 @@ class WhenExaminingFunctionWithALocalFunction(BaseFixture):
 class WhenExaminingFunctionWithLocalVariables(BaseFixture):
     def setup(self):
         super(WhenExaminingFunctionWithLocalVariables, self).setup()
-        def function():
-            local_variable = 1
-        self.local_functions = LocalFunctions(function, '')
+        mote.FunctionLocals.return_value = ['not a function']
+        self.local_function = LocalFunctions(Dingus(), '')
 
     def should_not_include_local_variable(self):
-        assert not self.local_functions
+        assert self.local_function == []
 
 
 class WhenExtractingCases(BaseFixture):
     def setup(self):
         super(WhenExtractingCases, self).setup()
-        def context_function():
-            def should_do_something(): pass
-            def some_function(): pass
+        def should_do_something(): pass
+        def some_function(): pass
+        mote.FunctionLocals.return_value = [should_do_something,
+                                            some_function]
 
-        self.local_functions = LocalFunctions.case_functions(context_function)
+        self.local_functions = LocalFunctions.case_functions(Dingus())
 
     def should_only_include_functions_starting_with_the_prefix(self):
         assert (len(self.local_functions) == 1 and
@@ -61,12 +52,12 @@ class WhenExtractingCases(BaseFixture):
 class WhenExtractingContexts(BaseFixture):
     def setup(self):
         super(WhenExtractingContexts, self).setup()
-        def context_function():
-            def when_doing_something(): pass
-            def some_function(): pass
+        def when_doing_something(): pass
+        def some_function(): pass
+        mote.FunctionLocals.return_value = [when_doing_something,
+                                            some_function]
 
-        self.local_functions = LocalFunctions.context_functions(
-            context_function)
+        self.local_functions = LocalFunctions.context_functions(Dingus())
 
     def should_only_include_context_functions(self):
         assert (len(self.local_functions) == 1 and

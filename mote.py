@@ -2,19 +2,10 @@ from optparse import OptionParser
 import sys
 
 
-class LocalFunctions(list):
-    def __init__(self, function, prefix):
+class FunctionLocals(list):
+    def __init__(self, function):
         self.function = function
-        self.prefix = prefix
         self._call_function_with_trace()
-
-    @classmethod
-    def case_functions(cls, context_function):
-        return cls(context_function, 'should_')
-
-    @classmethod
-    def context_functions(cls, context_function):
-        return cls(context_function, 'when_')
 
     def _call_function_with_trace(self):
         sys.settrace(self._trace)
@@ -29,8 +20,7 @@ class LocalFunctions(list):
             return trace_function_for_function
 
     def _trace_return_statement(self, frame):
-        local_functions = self._local_functions_in_frame(frame)
-        self.extend(local_functions)
+        self.extend(frame.f_locals.values())
 
     def _trace_function_call(self, frame):
         traced_fn_name = frame.f_code.co_name
@@ -39,9 +29,25 @@ class LocalFunctions(list):
         else:
             return None
 
-    def _local_functions_in_frame(self, frame):
+
+class LocalFunctions(list):
+    def __init__(self, function, prefix):
+        self.function = function
+        self.prefix = prefix
+        self.extend(self._local_functions_in_frame())
+
+    @classmethod
+    def case_functions(cls, context_function):
+        return cls(context_function, 'should_')
+
+    @classmethod
+    def context_functions(cls, context_function):
+        return cls(context_function, 'when_')
+
+    def _local_functions_in_frame(self):
         return [local_obj
-                for name, local_obj in frame.f_locals.items()
+                for local_obj
+                in FunctionLocals(self.function)
                 if callable(local_obj)
                 and local_obj.__name__.startswith(self.prefix)]
 
