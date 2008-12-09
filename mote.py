@@ -146,9 +146,9 @@ class ResultPrinter:
         if case.success:
             status = 'ok'
         else:
-            status = 'FAIL (%s @ %i)' % (
-                case.exception.__class__.__name__,
-                case.exception_line)
+            exception_name = case.exception.__class__.__name__
+            exception_line = case.exception_line
+            status = 'FAIL (%s @ %i)' % (exception_name, exception_line)
         sys.stdout.write('%s  %s -> %s\n' % ('  ' * indentation,
                                              case.pretty_name,
                                              status))
