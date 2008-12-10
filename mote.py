@@ -1,5 +1,13 @@
+import unittest
 from optparse import OptionParser
 import sys
+
+
+class DummyTestCase(unittest.TestCase):
+    def nop(self):
+        pass
+
+DEFAULT_GLOBALS = dict(assert_raises=DummyTestCase('nop').failUnlessRaises)
 
 
 class FunctionLocals(list):
@@ -98,6 +106,7 @@ class SpecSuite:
 
 class ImportedModule(dict):
     def __init__(self, filename):
+        self.update(DEFAULT_GLOBALS)
         execfile(filename, self)
 
 

@@ -1,6 +1,3 @@
-from nose.tools import assert_raises
-
-
 # Class under test
 class Frobber:
     def __init__(self):
@@ -44,7 +41,7 @@ def describe_frobber():
 #   should not have spam -> ok
 #   when frazzled
 #     should not be ready to frob -> ok
-#     should be ready to frob -> FAIL (AssertionError @ 31)
+#     should be ready to frob -> FAIL (AssertionError @ 28)
 #   when frobbed
 #     should have spam -> ok
 # All specs passed
