@@ -84,6 +84,8 @@ class WhenCasesRaiseExceptions(SystemTest):
         super(WhenCasesRaiseExceptions, self).setup()
         self._write_test_file('''\
             def describe_integers_incorrectly():
+                def should_add_correctly():
+                    assert 1 + 1 == 2
                 def should_add_incorrectly():
                     assert 1 + 1 == 3''')
 
@@ -94,7 +96,8 @@ class WhenCasesRaiseExceptions(SystemTest):
         expected = dedent(
             '''\
             describe integers incorrectly
-              should add incorrectly -> FAIL (AssertionError @ 3)
+              should add correctly -> ok
+              should add incorrectly -> FAIL (AssertionError @ 5)
             Specs failed
             ''')
         self._assert_output_equals(expected)
