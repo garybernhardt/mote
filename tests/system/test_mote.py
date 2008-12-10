@@ -243,3 +243,26 @@ class WhenTestsAreInNestedDirectories(SystemTest):
         os.mkdir(subdir)
         file_path = os.path.join(subdir, 'test_file.py')
         self._assert_finds_file_at_path(dir_path, file_path)
+
+
+class WhenMultipleTestFilesExist(SystemTest):
+    def setup(self):
+        self.dir_path = tempfile.mkdtemp('mote_system_test')
+        first_test_path = os.path.join(self.dir_path, 'first_test.py')
+        second_test_path = os.path.join(self.dir_path, 'second_test.py')
+        for path in [first_test_path, second_test_path]:
+            file(path, 'w').write(dedent(
+                '''
+                def describe_path():
+                    pass
+                '''))
+
+    def should_find_both_files(self):
+        self._assert_output_equals(dedent(
+            '''\
+            describe path
+            describe path
+            All specs passed
+            '''),
+            test_path = self.dir_path)
+

@@ -89,9 +89,10 @@ class ContextsFromModule(list):
 
 class SpecSuite:
     def __init__(self, contents_of_modules):
+        self.contexts = []
         for contents_of_module in contents_of_modules:
-            self.module_contents = contents_of_module.values()
-            self.contexts = ContextsFromModule(self.module_contents)
+            module_contents = contents_of_module.values()
+            self.contexts.extend(ContextsFromModule(module_contents))
 
     def run(self):
         return list(self._run_contexts())

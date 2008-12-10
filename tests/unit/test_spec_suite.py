@@ -29,6 +29,7 @@ class WhenRunningPassingTests(BaseFixture):
         super(WhenRunningPassingTests, self).setup()
         case = Dingus(success=True)
         mote.CasesFromContexts.return_value = [case]
+        mote.ContextsFromModule.return_value = []
         self.suite = SpecSuite([{}])
         self.suite.run()
 
@@ -41,6 +42,7 @@ class WhenRunningFailingTests(BaseFixture):
         super(WhenRunningFailingTests, self).setup()
         case = Dingus(success=False)
         mote.CasesFromContexts.return_value = [case]
+        mote.ContextsFromModule.return_value = []
 
         self.context_function = lambda: None
         self.suite = SpecSuite([dict(context_function=self.context_function)])
@@ -55,6 +57,8 @@ class WhenRunning(BaseFixture):
         super(WhenRunning, self).setup()
         self.cases = [Dingus(success=True) for _ in range(2)]
         mote.CasesFromContexts.return_value = self.cases
+        self.context = Dingus()
+        mote.ContextsFromModule.return_value = [self.context]
 
         self.context_function = lambda: None
         self.suite = SpecSuite([dict(context_function=self.context_function)])
@@ -64,13 +68,15 @@ class WhenRunning(BaseFixture):
         assert self.suite_result == self.cases
 
     def should_expose_contexts(self):
-        assert self.suite.contexts is mote.ContextsFromModule.return_value
+        assert self.suite.contexts == [self.context]
 
 
 class WhenGivenMultipleModules(BaseFixture):
     def setup(self):
         super(WhenGivenMultipleModules, self).setup()
         self.modules = Dingus.many(2)
+        self.contexts = [Dingus()]
+        mote.ContextsFromModule.return_value = self.contexts
         self.suite = SpecSuite(self.modules)
 
     def should_extract_contexts_from_all_modules(self):
@@ -78,4 +84,7 @@ class WhenGivenMultipleModules(BaseFixture):
             mote.ContextsFromModule.calls('()',
                                           module.values.return_value).one()
             for module in self.modules)
+
+    def should_collect_all_contexts(self):
+        assert self.suite.contexts == self.contexts * 2
 
