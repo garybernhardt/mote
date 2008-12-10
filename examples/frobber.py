@@ -44,5 +44,5 @@ def describe_frobber():
 #     should be ready to frob -> FAIL (AssertionError @ 28)
 #   when frobbed
 #     should have spam -> ok
-# All specs passed
+# Specs failed
 

@@ -77,6 +77,7 @@ class CasesFromContexts(list):
         for context in contexts:
             for case in context.cases:
                 self.append(case)
+            self.extend(CasesFromContexts(context.contexts))
 
 
 class ContextsFromModule(list):

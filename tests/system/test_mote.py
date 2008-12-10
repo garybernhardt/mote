@@ -191,6 +191,9 @@ class WhenContextsAreNested(SystemTest):
                     value = 1 + 1
                     def should_get_sum():
                         assert value == 2
+                def when_something_is_wrong():
+                    def should_fail():
+                        assert 1 == 2
             ''')
 
     def should_run_cases_in_nested_contexts(self):
@@ -201,6 +204,9 @@ class WhenContextsAreNested(SystemTest):
         case_location = output.index('should be built in')
         context_location = output.index('when adding')
         assert case_location < context_location
+
+    def should_report_failing_specs(self):
+        self._assert_fails()
 
 
 class WhenTestsHaveDifferentOrders(SystemTest):
