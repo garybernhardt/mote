@@ -13,24 +13,24 @@ class SystemTest(object):
         content = dedent(content)
         file(self.test_file_path, 'w').write(content)
 
-    def _output(self, *args):
-        return self._run_mote(self.test_file_path, *args)
+    def _output(self, args=None):
+        return self._run_mote(self.test_file_path, args)
 
-    def _assert_output_equals(self, expected_output, *args):
-        output = self._output(*args)
+    def _assert_output_equals(self, expected_output, args=None):
+        output = self._output(args)
         if output != expected_output:
             raise AssertionError(
                 'Expected output:\n---\n%s\n---\nbut got:\n---\n%s\n---\n' %
                 (expected_output, output))
 
     def _assert_succeeds(self):
-        self._assert_output_equals('All specs passed\n', '--quiet')
+        self._assert_output_equals('All specs passed\n', args=['--quiet'])
 
     def _assert_fails(self):
-        self._assert_output_equals('Specs failed\n', '--quiet')
+        self._assert_output_equals('Specs failed\n', args=['--quiet'])
 
-    def _run_mote(self, test_file_name, *args):
-        args = list(args)
+    def _run_mote(self, test_file_name, args):
+        args = [] if args is None else args
         base_dir = os.path.dirname(__file__)
         test_path = os.path.join(base_dir, test_file_name)
         process = subprocess.Popen(['python', '-m', 'mote', test_path] + args,
@@ -48,7 +48,7 @@ class WhenRunningQuietly(SystemTest):
                 def should_add_correctly():
                     assert 1 + 1 == 2
             ''')
-        self._assert_output_equals('All specs passed\n', '--quiet')
+        self._assert_output_equals('All specs passed\n', args=['--quiet'])
 
 
 class WhenCasesRaiseNoExceptions(SystemTest):
