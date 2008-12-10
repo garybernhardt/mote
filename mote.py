@@ -99,11 +99,7 @@ class SpecSuite:
 
     def _run_contexts(self):
         cases = CasesFromContexts(self.contexts)
-        for case in cases:
-            if not case.success:
-                self.success = False
-                return
-        self.success = True
+        self.success = all(case.success for case in cases)
 
 
 class ImportedModule(dict):
