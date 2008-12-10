@@ -1,3 +1,4 @@
+import os
 import unittest
 from optparse import OptionParser
 import sys
@@ -87,9 +88,10 @@ class ContextsFromModule(list):
 
 
 class SpecSuite:
-    def __init__(self, module_contents):
-        self.module_contents = module_contents.values()
-        self.contexts = ContextsFromModule(self.module_contents)
+    def __init__(self, contents_of_modules):
+        for contents_of_module in contents_of_modules:
+            self.module_contents = contents_of_module.values()
+            self.contexts = ContextsFromModule(self.module_contents)
 
     def run(self):
         return list(self._run_contexts())
@@ -129,6 +131,22 @@ class Case:
         else:
             self.success = True
 
+
+class PythonFilesInDirectory(list):
+    def __init__(self, parent):
+        if not os.path.isdir(parent):
+            self._extend_with_file(parent)
+        else:
+            self._extend_with_directory(parent)
+
+    def _extend_with_file(self, path):
+        if path.endswith('.py'):
+            self.append(path)
+
+    def _extend_with_directory(self, path):
+        for child in os.listdir(path):
+            child_path = os.path.join(path, child)
+            self.extend(PythonFilesInDirectory(child_path))
 
 class Context:
     def __init__(self, context_function):
@@ -187,7 +205,8 @@ if __name__ == '__main__':
     parser.add_option('-q', '--quiet', action='store_true', dest='quiet')
     options, args = parser.parse_args()
 
-    suite = SpecSuite(ImportedModule(args[0]))
+    suite = SpecSuite(map(ImportedModule,
+                          PythonFilesInDirectory(args[0])))
     suite.run()
     if not options.quiet:
         ResultPrinter(suite.contexts)

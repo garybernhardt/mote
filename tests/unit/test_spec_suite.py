@@ -12,7 +12,7 @@ class WhenModuleContainsCallables(BaseFixture):
         mote.ContextsFromModule.return_value = []
         mote.CasesFromContexts.return_value = []
         self.module_contents = Dingus()
-        self.suite = SpecSuite(self.module_contents)
+        self.suite = SpecSuite([self.module_contents])
         self.suite.run()
 
     def should_collect_contexts_from_module(self):
@@ -29,7 +29,7 @@ class WhenRunningPassingTests(BaseFixture):
         super(WhenRunningPassingTests, self).setup()
         case = Dingus(success=True)
         mote.CasesFromContexts.return_value = [case]
-        self.suite = SpecSuite({})
+        self.suite = SpecSuite([{}])
         self.suite.run()
 
     def should_indicate_success(self):
@@ -43,7 +43,7 @@ class WhenRunningFailingTests(BaseFixture):
         mote.CasesFromContexts.return_value = [case]
 
         self.context_function = lambda: None
-        self.suite = SpecSuite(dict(context_function=self.context_function))
+        self.suite = SpecSuite([dict(context_function=self.context_function)])
         self.suite.run()
 
     def should_indicate_failure(self):
@@ -57,7 +57,7 @@ class WhenRunning(BaseFixture):
         mote.CasesFromContexts.return_value = self.cases
 
         self.context_function = lambda: None
-        self.suite = SpecSuite(dict(context_function=self.context_function))
+        self.suite = SpecSuite([dict(context_function=self.context_function)])
         self.suite_result = self.suite.run()
 
     def should_return_correct_number_of_cases(self):
@@ -65,4 +65,17 @@ class WhenRunning(BaseFixture):
 
     def should_expose_contexts(self):
         assert self.suite.contexts is mote.ContextsFromModule.return_value
+
+
+class WhenGivenMultipleModules(BaseFixture):
+    def setup(self):
+        super(WhenGivenMultipleModules, self).setup()
+        self.modules = Dingus.many(2)
+        self.suite = SpecSuite(self.modules)
+
+    def should_extract_contexts_from_all_modules(self):
+        assert all(
+            mote.ContextsFromModule.calls('()',
+                                          module.values.return_value).one()
+            for module in self.modules)
 

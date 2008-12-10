@@ -3,21 +3,26 @@ import subprocess
 import tempfile
 from textwrap import dedent
 import re
+import shutil
 
 
 class SystemTest(object):
     def setup(self):
-        self.test_file_path = tempfile.mktemp('mote_system_test')
+        self.test_file_path = tempfile.mktemp('mote_system_test.py')
 
     def _write_test_file(self, content):
         content = dedent(content)
         file(self.test_file_path, 'w').write(content)
 
-    def _output(self, args=None):
-        return self._run_mote(self.test_file_path, args)
+    def _output(self, test_path=None, args=None):
+        test_path = self.test_file_path if test_path is None else test_path
+        return self._run_mote(test_path, args)
 
-    def _assert_output_equals(self, expected_output, args=None):
-        output = self._output(args)
+    def _assert_output_equals(self,
+                              expected_output,
+                              test_path=None,
+                              args=None):
+        output = self._output(test_path, args)
         if output != expected_output:
             raise AssertionError(
                 'Expected output:\n---\n%s\n---\nbut got:\n---\n%s\n---\n' %
@@ -212,3 +217,29 @@ class WhenTestsHaveDifferentOrders(SystemTest):
                                          self.FIRST_TEST_DEF % '2']))
         assert self._output()[:3] == '1\n2'
 
+
+class WhenTestsAreInNestedDirectories(SystemTest):
+    def _assert_finds_file_at_path(self, parent_path, test_path):
+        file(test_path, 'w').write(dedent(
+            '''
+            def describe_nested_file():
+                pass
+            '''))
+        self._assert_output_equals(dedent(
+            '''\
+            describe nested file
+            All specs passed
+            '''),
+            test_path=parent_path)
+
+    def should_find_tests_nested_one_level_deep(self):
+        dir_path = tempfile.mkdtemp('mote_system_test')
+        file_path = os.path.join(dir_path, 'test_file.py')
+        self._assert_finds_file_at_path(dir_path, file_path)
+
+    def should_find_tests_nested_two_levels_deep(self):
+        dir_path = tempfile.mkdtemp('mote_system_test')
+        subdir = os.path.join(dir_path, 'subdir')
+        os.mkdir(subdir)
+        file_path = os.path.join(subdir, 'test_file.py')
+        self._assert_finds_file_at_path(dir_path, file_path)
