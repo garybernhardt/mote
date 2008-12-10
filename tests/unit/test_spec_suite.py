@@ -64,9 +64,6 @@ class WhenRunning(BaseFixture):
         self.suite = SpecSuite([dict(context_function=self.context_function)])
         self.suite_result = self.suite.run()
 
-    def should_return_correct_number_of_cases(self):
-        assert self.suite_result == self.cases
-
     def should_expose_contexts(self):
         assert self.suite.contexts == [self.context]
 

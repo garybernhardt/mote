@@ -95,12 +95,11 @@ class SpecSuite:
             self.contexts.extend(ContextsFromModule(module_contents))
 
     def run(self):
-        return list(self._run_contexts())
+        self._run_contexts()
 
     def _run_contexts(self):
         cases = CasesFromContexts(self.contexts)
         for case in cases:
-            yield case
             if not case.success:
                 self.success = False
                 return
