@@ -23,7 +23,7 @@ class SystemTest(object):
                               test_path=None,
                               args=None):
         output = self._output(test_path, args)
-        if output != expected_output:
+        if output != dedent(expected_output):
             raise AssertionError(
                 'Expected output:\n---\n%s\n---\nbut got:\n---\n%s\n---\n' %
                 (expected_output, output))
@@ -140,11 +140,11 @@ class WhenRunningMote(SystemTest):
             def describe_foo():
                 pass
             ''')
-        self._assert_output_equals(dedent(
+        self._assert_output_equals(
             '''\
             describe foo
             All specs passed
-            '''))
+            ''')
 
     def should_only_include_cases_starting_with_describe(self):
         self._write_test_file(
@@ -155,12 +155,12 @@ class WhenRunningMote(SystemTest):
                 def some_callable():
                     pass
             ''')
-        self._assert_output_equals(dedent(
+        self._assert_output_equals(
             '''\
             describe foo
               should do something -> ok
             All specs passed
-            '''))
+            ''')
 
     def should_have_assert_raises_function(self):
         self._write_test_file(
@@ -170,13 +170,13 @@ class WhenRunningMote(SystemTest):
                     def should_raise_zero_division_error():
                         assert_raises(ZeroDivisionError, lambda: 1 / 0)
             ''')
-        self._assert_output_equals(dedent(
+        self._assert_output_equals(
             '''\
             describe integers
               when dividing by zero
                 should raise zero division error -> ok
             All specs passed
-            '''))
+            ''')
 
 
 class WhenContextsAreNested(SystemTest):
@@ -234,11 +234,11 @@ class WhenTestsAreInNestedDirectories(SystemTest):
             def describe_nested_file():
                 pass
             '''))
-        self._assert_output_equals(dedent(
+        self._assert_output_equals(
             '''\
             describe nested file
             All specs passed
-            '''),
+            ''',
             test_path=parent_path)
 
     def should_find_tests_nested_one_level_deep(self):
@@ -267,11 +267,11 @@ class WhenMultipleTestFilesExist(SystemTest):
                 '''))
 
     def should_find_both_files(self):
-        self._assert_output_equals(dedent(
+        self._assert_output_equals(
             '''\
             describe path
             describe path
             All specs passed
-            '''),
+            ''',
             test_path = self.dir_path)
 
