@@ -1,9 +1,9 @@
-from dingus import Dingus, DingusFixture, DontCare
+from dingus import Dingus, DingusTestCase, DontCare
 import mote
 from mote import SpecSuite
 
 
-BaseFixture = DingusFixture(SpecSuite)
+BaseFixture = DingusTestCase(SpecSuite)
 
 
 class WhenModuleContainsCallables(BaseFixture):

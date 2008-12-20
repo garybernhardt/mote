@@ -1,9 +1,9 @@
-from dingus import Dingus, DingusFixture, DontCare
+from dingus import Dingus, DingusTestCase, DontCare
 import mote
 from mote import PythonFilesInDirectory
 
 
-class BaseFixture(DingusFixture(PythonFilesInDirectory)):
+class BaseFixture(DingusTestCase(PythonFilesInDirectory)):
     def setup(self):
         super(BaseFixture, self).setup()
         self.root_dir = 'root'

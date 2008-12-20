@@ -1,11 +1,11 @@
 import sys
 
-from dingus import Dingus, DingusFixture
+from dingus import Dingus, DingusTestCase
 import mote
 from mote import FunctionLocals
 
 
-BaseFixture = DingusFixture(FunctionLocals)
+BaseFixture = DingusTestCase(FunctionLocals)
 
 
 class WhenExaminingFunctionWithALocalFunction(BaseFixture):

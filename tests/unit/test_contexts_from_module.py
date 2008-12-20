@@ -1,9 +1,9 @@
-from dingus import Dingus, DingusFixture
+from dingus import Dingus, DingusTestCase
 import mote
 from mote import ContextsFromModule
 
 
-class WhenModuleContainsContextFunctions(DingusFixture(ContextsFromModule)):
+class WhenModuleContainsContextFunctions(DingusTestCase(ContextsFromModule)):
     def setup(self):
         super(WhenModuleContainsContextFunctions, self).setup()
         self.describe_foo = lambda: None
@@ -17,7 +17,7 @@ class WhenModuleContainsContextFunctions(DingusFixture(ContextsFromModule)):
         assert self.contexts == [mote.Context.return_value]
 
 
-class WhenModuleContainsOtherCallables(DingusFixture(ContextsFromModule)):
+class WhenModuleContainsOtherCallables(DingusTestCase(ContextsFromModule)):
     def setup(self):
         super(WhenModuleContainsOtherCallables, self).setup()
         self.some_function = lambda: None
@@ -27,7 +27,7 @@ class WhenModuleContainsOtherCallables(DingusFixture(ContextsFromModule)):
         assert self.contexts == []
 
 
-class WhenModuleContainsVariables(DingusFixture(ContextsFromModule)):
+class WhenModuleContainsVariables(DingusTestCase(ContextsFromModule)):
     def setup(self):
         super(WhenModuleContainsVariables, self).setup()
         self.contexts = ContextsFromModule([1])

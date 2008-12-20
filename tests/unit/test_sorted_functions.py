@@ -1,9 +1,9 @@
-from dingus import Dingus, DingusFixture
+from dingus import Dingus, DingusTestCase
 import mote
 from mote import SortedFunctions
 
 
-BaseFixture = DingusFixture(SortedFunctions)
+BaseFixture = DingusTestCase(SortedFunctions)
 
 
 class WhenExaminingFunctionWithMultipleLocalFunctions(BaseFixture):

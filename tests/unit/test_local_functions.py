@@ -1,11 +1,11 @@
 import sys
 
-from dingus import Dingus, DingusFixture
+from dingus import Dingus, DingusTestCase
 import mote
 from mote import LocalFunctions
 
 
-class BaseFixture(DingusFixture(LocalFunctions)):
+class BaseFixture(DingusTestCase(LocalFunctions)):
     def setup(self):
         super(BaseFixture, self).setup()
 

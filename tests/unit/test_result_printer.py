@@ -1,11 +1,11 @@
 import sys
 
-from dingus import Dingus, DingusFixture
+from dingus import Dingus, DingusTestCase
 import mote
 from mote import ResultPrinter
 
 
-class WithPatchedStdOut(DingusFixture(ResultPrinter)):
+class WithPatchedStdOut(DingusTestCase(ResultPrinter)):
     def setup(self):
         super(WithPatchedStdOut, self).setup()
         mote.sys = Dingus()

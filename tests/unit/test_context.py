@@ -1,9 +1,9 @@
-from dingus import Dingus, DingusFixture, exception_raiser
+from dingus import Dingus, DingusTestCase, exception_raiser
 import mote
 from mote import Context
 
 
-class BaseFixture(DingusFixture(Context)):
+class BaseFixture(DingusTestCase(Context)):
     def setup(self):
         super(BaseFixture, self).setup()
 

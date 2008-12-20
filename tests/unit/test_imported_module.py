@@ -1,8 +1,8 @@
-from dingus import Dingus, DingusFixture, DontCare
+from dingus import Dingus, DingusTestCase, DontCare
 import mote
 from mote import ImportedModule
 
-class WhenImportingModule(DingusFixture(ImportedModule)):
+class WhenImportingModule(DingusTestCase(ImportedModule)):
     def setup(self):
         super(WhenImportingModule, self).setup()
         self.some_default_global = Dingus()

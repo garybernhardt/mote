@@ -1,9 +1,9 @@
-from dingus import Dingus, DingusFixture
+from dingus import Dingus, DingusTestCase
 import mote
 from mote import CasesFromContexts
 
 
-class WhenGivenContexts(DingusFixture(CasesFromContexts)):
+class WhenGivenContexts(DingusTestCase(CasesFromContexts)):
     def setup(self):
         super(WhenGivenContexts, self).setup()
         self.case = Dingus()
@@ -15,7 +15,7 @@ class WhenGivenContexts(DingusFixture(CasesFromContexts)):
         assert self.cases == [self.case]
 
 
-class WhenContextsHaveNestedContexts(DingusFixture(CasesFromContexts)):
+class WhenContextsHaveNestedContexts(DingusTestCase(CasesFromContexts)):
     def setup(self):
         super(WhenContextsHaveNestedContexts, self).setup()
         self.case = Dingus()

@@ -1,9 +1,9 @@
-from dingus import Dingus, DingusFixture, exception_raiser, DontCare
+from dingus import Dingus, DingusTestCase, exception_raiser, DontCare
 import mote
 from mote import Case
 
 
-class WhenRunningCase(DingusFixture(Case)):
+class WhenRunningCase(DingusTestCase(Case)):
     def setup(self):
         super(WhenRunningCase, self).setup()
         self.context_function = Dingus()
@@ -28,7 +28,7 @@ class WhenRunningCase(DingusFixture(Case)):
         assert self.case.pretty_name == 'test case name'
 
 
-class WhenTestFunctionRaisesNoException(DingusFixture(Case)):
+class WhenTestFunctionRaisesNoException(DingusTestCase(Case)):
     def setup(self):
         super(WhenTestFunctionRaisesNoException, self).setup()
         self.context_function, self.case_name = Dingus.many(2)
@@ -38,7 +38,7 @@ class WhenTestFunctionRaisesNoException(DingusFixture(Case)):
         assert self.case.success
 
 
-class WhenTestFunctionRaisesException(DingusFixture(Case)):
+class WhenTestFunctionRaisesException(DingusTestCase(Case)):
     def setup(self):
         super(WhenTestFunctionRaisesException, self).setup()
         local_functions = mote.LocalFunctions.return_value
