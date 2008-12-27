@@ -3,72 +3,88 @@ import mote
 from mote import SpecSuite
 
 
-BaseFixture = DingusTestCase(SpecSuite)
-
-
-class WhenModuleContainsCallables(BaseFixture):
+class BaseFixture(DingusTestCase(SpecSuite)):
     def setup(self):
-        super(WhenModuleContainsCallables, self).setup()
-        mote.ContextsFromModule.return_value = []
-        self.module_contents = Dingus()
-        self.suite = SpecSuite([self.module_contents])
-
-    def should_collect_contexts_from_module(self):
-        assert mote.ContextsFromModule.calls(
-            '()', self.module_contents.values.return_value)
+        super(BaseFixture, self).setup()
+        self.describe_foo = lambda: None
+        self.describe_foo.__name__ = 'describe_foo'
+        self.describe_bar = lambda: None
+        self.describe_bar.__name__ = 'describe_bar'
 
 
-class WhenRunningPassingTests(BaseFixture):
+class WhenModuleContainsContextFunctions(BaseFixture):
     def setup(self):
-        super(WhenRunningPassingTests, self).setup()
-        context = Dingus(success=True)
-        mote.ContextsFromModule.return_value = [context]
-        self.suite = SpecSuite([{}])
+        super(WhenModuleContainsContextFunctions, self).setup()
+        self.suite = SpecSuite([dict(describe_foo=self.describe_foo)])
+
+    def should_create_context_(self):
+        assert mote.Context.calls('()', self.describe_foo)
+
+    def should_include_context_in_list(self):
+        assert self.suite.contexts == [mote.Context.return_value]
+
+
+class WhenModuleContainsOtherCallables(BaseFixture):
+    def setup(self):
+        super(WhenModuleContainsOtherCallables, self).setup()
+        self.some_function = lambda: None
+        some_fn = lambda: None
+        some_fn.__name__ = 'some_fn'
+        self.suite = SpecSuite([dict(some_fn=some_fn)])
+
+    def should_not_include_other_functions(self):
+        assert self.suite.contexts == []
+
+
+class WhenModuleContainsVariables(BaseFixture):
+    def setup(self):
+        super(WhenModuleContainsVariables, self).setup()
+        self.suite = SpecSuite([dict(variable=1)])
+
+    def should_not_include_variable(self):
+        assert len(self.suite.contexts) == 0
+
+    def should_not_try_to_collect_tests_from_noncallables(self):
+        assert not mote.Context.calls
+
+class WhenRunningPassingContexts(BaseFixture):
+    def setup(self):
+        super(WhenRunningPassingContexts, self).setup()
+        mote.Context.return_value = Dingus(success=True)
+        self.suite = SpecSuite([dict(describe_foo=self.describe_foo)])
 
     def should_indicate_success(self):
         assert self.suite.success
 
+    def should_find_contexts_function(self):
+        assert mote.Context.calls('()').one()
 
-class WhenRunningFailingTests(BaseFixture):
+
+class WhenRunningFailingContexts(BaseFixture):
     def setup(self):
-        super(WhenRunningFailingTests, self).setup()
-        context = Dingus(success=False)
-        mote.ContextsFromModule.return_value = [context]
-
-        self.suite = SpecSuite([{}])
+        super(WhenRunningFailingContexts, self).setup()
+        mote.Context.return_value = Dingus(success=False, )
+        self.suite = SpecSuite([dict(describe_foo=self.describe_foo)])
 
     def should_indicate_failure(self):
         assert not self.suite.success
 
-
-class WhenRunning(BaseFixture):
-    def setup(self):
-        super(WhenRunning, self).setup()
-        self.cases = [Dingus(success=True) for _ in range(2)]
-        self.context = Dingus()
-        mote.ContextsFromModule.return_value = [self.context]
-
-        self.context_function = lambda: None
-        self.suite = SpecSuite([dict(context_function=self.context_function)])
-
-    def should_expose_contexts(self):
-        assert self.suite.contexts == [self.context]
+    def should_find_contexts_function(self):
+        assert mote.Context.calls('()').one()
 
 
 class WhenGivenMultipleModules(BaseFixture):
     def setup(self):
         super(WhenGivenMultipleModules, self).setup()
-        self.modules = Dingus.many(2)
-        self.contexts = [Dingus()]
-        mote.ContextsFromModule.return_value = self.contexts
+        self.modules = [dict(describe_foo=self.describe_foo),
+                        dict(describe_bar=self.describe_bar)]
+        self.ctx_functions = [self.describe_foo, self.describe_bar]
         self.suite = SpecSuite(self.modules)
 
-    def should_extract_contexts_from_all_modules(self):
-        assert all(
-            mote.ContextsFromModule.calls('()',
-                                          module.values.return_value).one()
-            for module in self.modules)
+    def should_build_contexts_from_context_functions_in_all_modules(self):
+        assert all(mote.Context.calls('()', ctx_function).one()
+                   for ctx_function in self.ctx_functions)
 
     def should_collect_all_contexts(self):
-        assert self.suite.contexts == self.contexts * 2
+        assert self.suite.contexts == [mote.Context.return_value] * 2
 

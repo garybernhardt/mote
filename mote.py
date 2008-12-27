@@ -2,6 +2,7 @@ import os
 import unittest
 from optparse import OptionParser
 import sys
+from itertools import chain
 
 
 class DummyTestCase(unittest.TestCase):
@@ -72,22 +73,19 @@ class SortedFunctions(list):
                            key=lambda fn: fn.func_code.co_firstlineno))
 
 
-class ContextsFromModule(list):
-    def __init__(self, module_contents):
-        self.extend(Context(attribute)
-                    for attribute in module_contents
-                    if callable(attribute)
-                    and attribute.__name__.startswith('describe_'))
-
-
 class SpecSuite:
     def __init__(self, contents_of_modules):
-        self.contexts = []
-        for contents_of_module in contents_of_modules:
-            module_contents = contents_of_module.values()
-            self.contexts.extend(ContextsFromModule(module_contents))
-
+        self.contexts = [
+            ctx
+            for module_contents in contents_of_modules
+            for ctx in self._contexts_from_module(module_contents.values())]
         self.success = all(ctx.success for ctx in self.contexts)
+
+    def _contexts_from_module(self, module_contents):
+        return [Context(value)
+                for value in module_contents
+                if callable(value)
+                and value.__name__.startswith('describe_')]
 
 
 class ImportedModule(dict):
