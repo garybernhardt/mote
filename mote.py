@@ -95,16 +95,16 @@ class ImportedModule(dict):
 
 
 class Case:
-    def __init__(self, context_function, name):
+    def __init__(self, context, name):
+        self.context = context
         self.name = name
         self.pretty_name = name.replace('_', ' ')
-        local_functions = LocalFunctions(context_function, name)
-        self.case_function = local_functions.function_with_name(name)
         self._run()
 
     def _run(self):
+        case_function = self.context.fresh_function_named(self.name)
         try:
-            self.case_function()
+            case_function()
         except Exception, e:
             exc_type, exc_value, traceback = sys.exc_info()
             self.exception_line = traceback.tb_next.tb_lineno
@@ -131,8 +131,9 @@ class PythonFilesInDirectory(list):
             self.extend(PythonFilesInDirectory(child_path))
 
 class Context:
-    def __init__(self, context_function):
+    def __init__(self, context_function, parent=None):
         self.context_function = context_function
+        self.parent = parent
         self.name = context_function.__name__
         self.pretty_name = self.name.replace('_', ' ')
         self.cases = self._collect_cases()
@@ -145,15 +146,22 @@ class Context:
         local_functions = LocalFunctions.context_functions(
             self.context_function)
         sorted_functions = SortedFunctions(local_functions)
-        return [Context(function) for function in sorted_functions]
+        return [Context(function, self) for function in sorted_functions]
 
     def _collect_cases(self):
         case_functions = LocalFunctions.case_functions(self.context_function)
         case_functions = SortedFunctions(case_functions)
-        cases = [Case(self.context_function,
-                      case_function.__name__)
+        cases = [Case(self, case_function.__name__)
                  for case_function in case_functions]
         return cases
+
+    def fresh_function_named(self, name):
+        if self.parent is None:
+            context_function = self.context_function
+        else:
+            context_function = self.parent.fresh_function_named(self.name)
+        local_functions = LocalFunctions(context_function, name)
+        return local_functions.function_with_name(name)
 
 
 class ResultPrinter:

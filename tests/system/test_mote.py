@@ -209,6 +209,21 @@ class WhenContextsAreNested(SystemTest):
         self._assert_fails()
 
 
+class WhenRunningStatefulNestedContexts(SystemTest):
+    def should_rerun_outer_context_for_each_test(self):
+        self._write_test_file('''
+            import itertools
+            def describe_test_with_stateful_context():
+                iterator = itertools.count()
+                def when_in_inner_context():
+                    def should_get_0_from_iterator_in_first_case():
+                        assert iterator.next() == 0
+                    def should_get_1_from_iterator_in_second_case():
+                        assert iterator.next() == 0
+            ''')
+        self._assert_succeeds()
+
+
 class WhenTestsHaveDifferentOrders(SystemTest):
     CONTEXT_DEF = 'def describe_ordered_tests():'
     FIRST_TEST_DEF = '    def should_do_first_test(): print "%s"'

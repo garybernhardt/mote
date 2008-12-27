@@ -6,19 +6,16 @@ from mote import Case
 class WhenRunningCase(DingusTestCase(Case)):
     def setup(self):
         super(WhenRunningCase, self).setup()
-        self.context_function = Dingus()
+        self.context = Dingus()
         self.case_name = 'test_case_name'
-        self.case = Case(self.context_function, self.case_name)
+        self.case = Case(self.context, self.case_name)
 
-    def should_get_local_functions_from_context_to_ensure_isolation(self):
-        assert mote.LocalFunctions.calls('()',
-                                         self.context_function,
-                                         self.case_name).one()
+    def should_get_case_function_from_context(self):
+        self.context.calls('fresh_function_named', self.case_name).one()
 
-    def should_run_cases_with_fresh_context(self):
-        local_functions = mote.LocalFunctions.return_value
-        case_function = local_functions.calls(
-            'function_with_name', self.case_name).one().return_value
+    def should_call_case_function(self):
+        case_function = self.context.calls(
+            'fresh_function_named').one().return_value
         assert case_function.calls('()').one()
 
     def should_have_name(self):
@@ -41,16 +38,14 @@ class WhenTestFunctionRaisesNoException(DingusTestCase(Case)):
 class WhenTestFunctionRaisesException(DingusTestCase(Case)):
     def setup(self):
         super(WhenTestFunctionRaisesException, self).setup()
-        local_functions = mote.LocalFunctions.return_value
-        local_functions.function_with_name.return_value = exception_raiser(
-            AssertionError)
-
         traceback = Dingus()
         traceback.tb_next.tb_lineno = 3
         mote.sys.exc_info.return_value = (Dingus(), Dingus(), traceback)
 
-        self.context_function, self.case_name = Dingus.many(2)
-        self.case = Case(self.context_function, self.case_name)
+        self.context, self.case_name = Dingus.many(2)
+        self.context.fresh_function_named.return_value = exception_raiser(
+            AssertionError)
+        self.case = Case(self.context, self.case_name)
 
     def should_fail(self):
         assert not self.case.success

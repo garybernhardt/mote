@@ -49,7 +49,7 @@ class WhenRunningMultipleCases(BaseFixture):
 
     def should_create_cases(self):
         assert all(mote.Case.calls('()',
-                                   self.context_function,
+                                   self.context,
                                    case_function.__name__).one()
                    for case_function in self.case_functions)
 
@@ -70,7 +70,7 @@ class WhenContextsAreNested(BaseFixture):
         self.context = Context(self.context_function)
 
     def should_create_context(self):
-        assert mote.Context.calls('()').one()
+        assert mote.Context.calls('()', self.when_frobbing, self.context).one()
 
     def should_collect_contexts(self):
         assert self.context.contexts == [mote.Context.return_value]
@@ -121,4 +121,42 @@ class WhenCasesAndNestedContextsPass(BaseFixture):
     def should_indicate_success(self):
         assert self.context.success
 
+
+class WhenGettingFreshFunctionsWithNoParent(BaseFixture):
+    def setup(self):
+        super(WhenGettingFreshFunctionsWithNoParent, self).setup()
+        mote.SortedFunctions.return_value = [Dingus()]
+        self.context_function = Dingus()
+        context = Context(self.context_function)
+        self.fresh_function = context.fresh_function_named('child_fn')
+
+    def should_extract_function_from_context_locals(self):
+        assert mote.LocalFunctions.calls('()',
+                                         self.context_function,
+                                         'child_fn').one()
+
+    def should_return_function_with_requested_name(self):
+        local_functions = mote.LocalFunctions.return_value
+        fresh_function = local_functions.calls('function_with_name',
+                                               'child_fn').one().return_value
+        assert self.fresh_function is fresh_function
+
+
+class WhenGettingFreshFunctionsWithParent(BaseFixture):
+    def setup(self):
+        super(WhenGettingFreshFunctionsWithParent, self).setup()
+        mote.SortedFunctions.return_value = [Dingus()]
+        self.context_function, self.parent = Dingus.many(2)
+        context = Context(self.context_function, self.parent)
+        self.fresh_function = context.fresh_function_named('child_fn')
+
+    def should_extract_function_from_fresh_parent_function(self):
+        fresh_parent_function = self.parent.calls(
+            'fresh_function_named',
+            self.context_function.__name__).one().return_value
+        local_functions = mote.LocalFunctions.calls(
+            '()', fresh_parent_function, 'child_fn').one().return_value
+        fresh_function = local_functions.calls('function_with_name',
+                                               'child_fn').one().return_value
+        assert self.fresh_function is fresh_function
 
