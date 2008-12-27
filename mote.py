@@ -72,14 +72,6 @@ class SortedFunctions(list):
                            key=lambda fn: fn.func_code.co_firstlineno))
 
 
-class CasesFromContexts(list):
-    def __init__(self, contexts):
-        for context in contexts:
-            for case in context.cases:
-                self.append(case)
-            self.extend(CasesFromContexts(context.contexts))
-
-
 class ContextsFromModule(list):
     def __init__(self, module_contents):
         self.extend(Context(attribute)
@@ -95,12 +87,7 @@ class SpecSuite:
             module_contents = contents_of_module.values()
             self.contexts.extend(ContextsFromModule(module_contents))
 
-    def run(self):
-        self._run_contexts()
-
-    def _run_contexts(self):
-        cases = CasesFromContexts(self.contexts)
-        self.success = all(case.success for case in cases)
+        self.success = all(ctx.success for ctx in self.contexts)
 
 
 class ImportedModule(dict):
@@ -152,6 +139,9 @@ class Context:
         self.pretty_name = self.name.replace('_', ' ')
         self.cases = self._collect_cases()
         self.contexts = self._collect_contexts()
+        self.success = (all(case.success for case in self.cases)
+                        and
+                        all(ctx.success for ctx in self.contexts))
 
     def _collect_contexts(self):
         local_functions = LocalFunctions.context_functions(
@@ -204,7 +194,6 @@ if __name__ == '__main__':
 
     suite = SpecSuite(map(ImportedModule,
                           PythonFilesInDirectory(args[0])))
-    suite.run()
     if not options.quiet:
         ResultPrinter(suite.contexts)
 

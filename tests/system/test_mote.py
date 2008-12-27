@@ -191,9 +191,9 @@ class WhenContextsAreNested(SystemTest):
                     value = 1 + 1
                     def should_get_sum():
                         assert value == 2
-                def when_something_is_wrong():
-                    def should_fail():
-                        assert 1 == 2
+                    def when_something_is_wrong():
+                        def should_fail():
+                            assert 1 == 2
             ''')
 
     def should_run_cases_in_nested_contexts(self):

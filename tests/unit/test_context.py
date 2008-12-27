@@ -87,3 +87,38 @@ class WhenContextsAreNested(BaseFixture):
         inner_context_function = mote.Context.calls('()').one().args[0]
         assert inner_context_function.__name__ == 'when_frobbing'
 
+
+class WhenCasesFail(BaseFixture):
+    def setup(self):
+        super(WhenCasesFail, self).setup()
+        mote.SortedFunctions.return_value = [Dingus()]
+        mote.Case.return_value = Dingus(success=False)
+        self.context = Context(Dingus())
+
+    def should_indicate_failure(self):
+        assert not self.context.success
+
+
+class WhenNestedContextsFail(BaseFixture):
+    def setup(self):
+        super(WhenNestedContextsFail, self).setup()
+        mote.SortedFunctions.return_value = [Dingus()]
+        mote.Context.return_value = Dingus(success=False)
+        self.context = Context(Dingus())
+
+    def should_indicate_failure(self):
+        assert not self.context.success
+
+
+class WhenCasesAndNestedContextsPass(BaseFixture):
+    def setup(self):
+        super(WhenCasesAndNestedContextsPass, self).setup()
+        mote.SortedFunctions.return_value = [Dingus()]
+        mote.Case.return_value = Dingus(success=True)
+        mote.Context.return_value = Dingus(success=True)
+        self.context = Context(Dingus())
+
+    def should_indicate_success(self):
+        assert self.context.success
+
+
