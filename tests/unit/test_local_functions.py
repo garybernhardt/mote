@@ -5,9 +5,7 @@ import mote
 from mote import LocalFunctions
 
 
-class BaseFixture(DingusTestCase(LocalFunctions)):
-    def setup(self):
-        super(BaseFixture, self).setup()
+BaseFixture = DingusTestCase(LocalFunctions)
 
 
 class WhenExaminingFunctionWithALocalFunction(BaseFixture):
