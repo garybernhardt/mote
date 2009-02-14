@@ -3,3 +3,6 @@
 \#$
 ~$
 \.\#
+^mote.egg-info$
+^dist$
+^build$
