@@ -132,7 +132,7 @@ class PythonFilesInDirectory(list):
 
 class Context:
     def __init__(self, context_function, parent=None):
-        self.context_function = context_function
+        self.original_context_function = context_function
         self.parent = parent
         self.name = context_function.__name__
         self.pretty_name = self.name.replace('_', ' ')
@@ -141,6 +141,13 @@ class Context:
         self.success = (all(case.success for case in self.cases)
                         and
                         all(ctx.success for ctx in self.contexts))
+
+    @property
+    def context_function(self):
+        if self.parent:
+            return self.parent.fresh_function_named(self.name)
+        else:
+            return self.original_context_function
 
     def _collect_contexts(self):
         local_functions = LocalFunctions.context_functions(
@@ -156,11 +163,7 @@ class Context:
         return cases
 
     def fresh_function_named(self, name):
-        if self.parent is None:
-            context_function = self.context_function
-        else:
-            context_function = self.parent.fresh_function_named(self.name)
-        local_functions = LocalFunctions(context_function, name)
+        local_functions = LocalFunctions(self.context_function, name)
         return local_functions.function_with_name(name)
 
 

@@ -223,6 +223,25 @@ class WhenRunningStatefulNestedContexts(SystemTest):
             ''')
         self._assert_succeeds()
 
+    def should_rerun_grandparent_context_for_each_context(self):
+        self._write_test_file('''
+            def describe_test_with_stateful_context():
+                calls = ['describe']
+                def when_1():
+                    calls.append('when_1')
+                    assert calls == ['describe', 'when_1']
+                    def should_1():
+                        calls.append('should_1')
+                        assert calls == ['describe', 'when_1', 'should_1']
+                def when_2():
+                    calls.append('when_2')
+                    assert calls == ['describe', 'when_2']
+                    def should_2():
+                        calls.append('should_2')
+                        assert calls == ['describe', 'when_2', 'should_2']
+            ''')
+        self._assert_succeeds()
+
 
 class WhenTestsHaveDifferentOrders(SystemTest):
     CONTEXT_DEF = 'def describe_ordered_tests():'
