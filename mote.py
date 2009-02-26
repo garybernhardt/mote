@@ -3,6 +3,8 @@ import unittest
 from optparse import OptionParser
 import sys
 from itertools import chain
+import re
+from types import FunctionType
 
 
 class DummyTestCase(unittest.TestCase):
@@ -41,25 +43,37 @@ class FunctionLocals(list):
 
 
 class LocalFunctions(list):
-    def __init__(self, function, prefix):
+    def __init__(self, function, name_filter_fn=None):
         self.function = function
-        self.prefix = prefix
+        if name_filter_fn is None:
+            self.name_filter_fn = lambda name: True
+        else:
+            self.name_filter_fn = name_filter_fn
         self.extend(self._local_functions_in_frame())
 
     @classmethod
     def case_functions(cls, context_function):
-        return cls(context_function, 'should_')
+        return cls(context_function, cls._is_case_function)
+
+    @staticmethod
+    def _is_case_function(name):
+        return (not name.startswith('_') and
+                not name.startswith('when_'))
 
     @classmethod
     def context_functions(cls, context_function):
-        return cls(context_function, 'when_')
+        return cls(context_function, cls._is_context_function)
+
+    @staticmethod
+    def _is_context_function(name):
+        return name.startswith('when_')
 
     def _local_functions_in_frame(self):
         return [local_obj
                 for local_obj
                 in FunctionLocals(self.function)
-                if callable(local_obj)
-                and local_obj.__name__.startswith(self.prefix)]
+                if isinstance(local_obj, FunctionType)
+                and self.name_filter_fn(local_obj.__name__)]
 
     def function_with_name(self, name):
         return [function
@@ -163,7 +177,7 @@ class Context:
         return cases
 
     def fresh_function_named(self, name):
-        local_functions = LocalFunctions(self.context_function, name)
+        local_functions = LocalFunctions(self.context_function)
         return local_functions.function_with_name(name)
 
 

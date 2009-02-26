@@ -146,22 +146,6 @@ class WhenRunningMote(SystemTest):
             All specs passed
             ''')
 
-    def should_only_include_cases_starting_with_describe(self):
-        self._write_test_file(
-            '''
-            def describe_foo():
-                def should_do_something():
-                    pass
-                def some_callable():
-                    pass
-            ''')
-        self._assert_output_equals(
-            '''\
-            describe foo
-              should do something -> ok
-            All specs passed
-            ''')
-
     def should_have_assert_raises_function(self):
         self._write_test_file(
             '''
@@ -175,6 +159,48 @@ class WhenRunningMote(SystemTest):
             describe integers
               when dividing by zero
                 should raise zero division error -> ok
+            All specs passed
+            ''')
+
+    def should_treat_callables_as_specs(self):
+        self._write_test_file(
+            '''
+            def describe_integers():
+                def can_be_added():
+                    assert 1 + 1 == 2
+            ''')
+        self._assert_output_equals(
+            '''\
+            describe integers
+              can be added -> ok
+            All specs passed
+            ''')
+
+    def should_not_treat_functions_with_leading_underscores_as_specs(self):
+        self._write_test_file(
+            '''
+            def describe_integers():
+                def _not_a_spec():
+                    pass
+            ''')
+        self._assert_output_equals(
+            '''\
+            describe integers
+            All specs passed
+            ''')
+
+    def should_not_treat_callables_that_arent_functions_as_specs(self):
+        self._write_test_file(
+            '''
+            class Callable:
+                def __call__(self):
+                    pass
+            def describe_integers():
+                callable = Callable()
+            ''')
+        self._assert_output_equals(
+            '''\
+            describe integers
             All specs passed
             ''')
 

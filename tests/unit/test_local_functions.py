@@ -1,11 +1,17 @@
 import sys
+import re
+from types import FunctionType
 
 from dingus import Dingus, DingusTestCase
 import mote
 from mote import LocalFunctions
 
 
-BaseFixture = DingusTestCase(LocalFunctions)
+class BaseFixture(DingusTestCase(LocalFunctions)):
+    def setup(self):
+        super(BaseFixture, self).setup()
+        mote.re = re
+        mote.FunctionType = FunctionType
 
 
 class WhenExaminingFunctionWithALocalFunction(BaseFixture):
@@ -14,7 +20,7 @@ class WhenExaminingFunctionWithALocalFunction(BaseFixture):
         def local_function():
             return 'local function return'
         mote.FunctionLocals.return_value = [local_function]
-        self.local_functions = LocalFunctions(Dingus(), '')
+        self.local_functions = LocalFunctions(Dingus())
 
     def should_return_functions_by_name(self):
         local_function = self.local_functions.function_with_name(
@@ -32,19 +38,38 @@ class WhenExaminingFunctionWithLocalVariables(BaseFixture):
         assert self.local_function == []
 
 
+class WhenExaminingFunctionWithLocalCallable(BaseFixture):
+    def setup(self):
+        super(WhenExaminingFunctionWithLocalCallable, self).setup()
+        class Callable:
+            def __call__(self):
+                pass
+        mote.FunctionLocals.return_value = [Callable()]
+        self.local_function = LocalFunctions(Dingus(), '')
+
+    def should_not_include_callable_that_isnt_function(self):
+        assert self.local_function == []
+
+
 class WhenExtractingCases(BaseFixture):
     def setup(self):
         super(WhenExtractingCases, self).setup()
-        def should_do_something(): pass
-        def some_function(): pass
-        mote.FunctionLocals.return_value = [should_do_something,
-                                            some_function]
+        def does_something(): pass
+        def _some_non_spec_function(): pass
+        def when_doing_something(): pass
+        self.does_something = does_something
+        self.when_doing_something = when_doing_something
+        mote.FunctionLocals.return_value = [does_something,
+                                            _some_non_spec_function,
+                                            when_doing_something]
 
         self.local_functions = LocalFunctions.case_functions(Dingus())
 
-    def should_only_include_functions_starting_with_the_prefix(self):
-        assert (len(self.local_functions) == 1 and
-                self.local_functions[0].__name__ == 'should_do_something')
+    def should_include_functions(self):
+        assert self.does_something in self.local_functions
+
+    def should_not_include_contexts(self):
+        assert self.when_doing_something not in self.local_functions
 
 
 class WhenExtractingContexts(BaseFixture):

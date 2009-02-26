@@ -131,9 +131,7 @@ class WhenGettingFreshFunctions(BaseFixture):
         self.fresh_function = context.fresh_function_named('child_fn')
 
     def should_extract_function_from_context_locals(self):
-        assert mote.LocalFunctions.calls('()',
-                                         self.context_function,
-                                         'child_fn').one()
+        assert mote.LocalFunctions.calls('()', self.context_function).one()
 
     def should_return_function_with_requested_name(self):
         local_functions = mote.LocalFunctions.return_value
