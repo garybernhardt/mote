@@ -1,0 +1,2 @@
+Catch and report parse errors in spec files
+Catch and report exceptions raised in contexts
