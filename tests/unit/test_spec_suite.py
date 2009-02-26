@@ -63,7 +63,7 @@ class WhenRunningPassingContexts(BaseFixture):
 class WhenRunningFailingContexts(BaseFixture):
     def setup(self):
         super(WhenRunningFailingContexts, self).setup()
-        mote.Context.return_value = Dingus(success=False, )
+        mote.Context.return_value = Dingus(success=False)
         self.suite = SpecSuite([dict(describe_foo=self.describe_foo)])
 
     def should_indicate_failure(self):
