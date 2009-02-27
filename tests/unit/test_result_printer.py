@@ -40,7 +40,6 @@ class WhenCasesFail(WithPatchedStdOut):
         ResultPrinter([self.context])
 
     def should_print_failure_message(self):
-        print mote.sys.stdout.calls
         assert mote.sys.stdout.calls(
             'write',
             '  should frob -> FAIL (AssertionError @ 3)\n').one()
