@@ -27,7 +27,7 @@ class WhenCasesPass(WithPatchedStdOut):
         assert self._wrote('describe frobber\n')
 
     def should_print_case_name(self):
-        assert self._wrote('  should frob -> ok\n')
+        assert self._wrote('  should frob\n')
 
 
 class WhenCasesFail(WithPatchedStdOut):

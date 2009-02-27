@@ -73,7 +73,7 @@ class WhenCasesRaiseNoExceptions(SystemTest):
         expected = dedent(
             '''\
             describe integers
-              should add correctly -> ok
+              should add correctly
             All specs passed
             ''')
         self._assert_output_equals(expected)
@@ -96,7 +96,7 @@ class WhenCasesRaiseExceptions(SystemTest):
         expected = dedent(
             '''\
             describe integers incorrectly
-              should add correctly -> ok
+              should add correctly
               should add incorrectly -> FAIL (AssertionError @ 5)
             Specs failed
             ''')
@@ -158,7 +158,7 @@ class WhenRunningMote(SystemTest):
             '''\
             describe integers
               when dividing by zero
-                should raise zero division error -> ok
+                should raise zero division error
             All specs passed
             ''')
 
@@ -172,7 +172,7 @@ class WhenRunningMote(SystemTest):
         self._assert_output_equals(
             '''\
             describe integers
-              can be added -> ok
+              can be added
             All specs passed
             ''')
 
@@ -223,7 +223,7 @@ class WhenContextsAreNested(SystemTest):
             ''')
 
     def should_run_cases_in_nested_contexts(self):
-        assert 'should get sum -> ok' in self._output()
+        assert 'should get sum' in self._output()
 
     def should_run_cases_before_contexts_within_same_parent_context(self):
         output = self._output()

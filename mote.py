@@ -187,19 +187,17 @@ class ResultPrinter:
     def __init__(self, contexts):
         self._print_contexts(contexts, '')
 
-    def _case_status(self, case):
-        if case.success:
-            return 'ok'
-        else:
-            exception_name = case.exception.__class__.__name__
-            exception_line = case.exception_line
-            return 'FAIL (%s @ %i)' % (exception_name, exception_line)
+    def _failing_case_status(self, case):
+        exception_name = case.exception.__class__.__name__
+        exception_line = case.exception_line
+        return ' -> FAIL (%s @ %i)' % (exception_name, exception_line)
 
     def _print_cases(self, cases, padding):
         for case in cases:
-            sys.stdout.write('%s  %s -> %s\n' % (padding,
-                                                 case.pretty_name,
-                                                 self._case_status(case)))
+            result = '' if case.success else self._failing_case_status(case)
+            sys.stdout.write('%s  %s%s\n' % (padding,
+                                             case.pretty_name,
+                                             result))
 
     def _print_contexts(self, contexts, padding):
         for context in contexts:
