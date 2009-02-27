@@ -10,6 +10,9 @@ class WithPatchedStdOut(DingusTestCase(ResultPrinter)):
         super(WithPatchedStdOut, self).setup()
         mote.sys = Dingus()
 
+    def _wrote(self, text):
+        return mote.sys.stdout.calls('write', text).one()
+
 
 class WhenCasesPass(WithPatchedStdOut):
     def setup(self):
@@ -21,10 +24,10 @@ class WhenCasesPass(WithPatchedStdOut):
         ResultPrinter([self.context])
 
     def should_print_context_name(self):
-        assert mote.sys.stdout.calls('write', 'describe frobber\n').one()
+        assert self._wrote('describe frobber\n')
 
     def should_print_case_name(self):
-        assert mote.sys.stdout.calls('write', '  should frob -> ok\n').one()
+        assert self._wrote('  should frob -> ok\n')
 
 
 class WhenCasesFail(WithPatchedStdOut):
@@ -40,9 +43,7 @@ class WhenCasesFail(WithPatchedStdOut):
         ResultPrinter([self.context])
 
     def should_print_failure_message(self):
-        assert mote.sys.stdout.calls(
-            'write',
-            '  should frob -> FAIL (AssertionError @ 3)\n').one()
+        assert self._wrote('  should frob -> FAIL (AssertionError @ 3)\n')
 
 
 class WhenCasesAreInNestedContexts(WithPatchedStdOut):
@@ -59,5 +60,5 @@ class WhenCasesAreInNestedContexts(WithPatchedStdOut):
         ResultPrinter([self.outer_context])
 
     def should_print_inner_context_results(self):
-        assert mote.sys.stdout.calls('write', '  when frobbing\n')
+        assert self._wrote('  when frobbing\n')
 
