@@ -3,15 +3,15 @@ import re
 from types import FunctionType
 
 from dingus import Dingus, DingusTestCase
-import mote
-from mote import LocalFunctions
+from mote import localfunctions
+from mote.localfunctions import LocalFunctions
 
 
 class BaseFixture(DingusTestCase(LocalFunctions)):
     def setup(self):
         super(BaseFixture, self).setup()
-        mote.re = re
-        mote.FunctionType = FunctionType
+        localfunctions.re = re
+        localfunctions.FunctionType = FunctionType
 
 
 class WhenExaminingFunctionWithALocalFunction(BaseFixture):
@@ -19,7 +19,7 @@ class WhenExaminingFunctionWithALocalFunction(BaseFixture):
         super(WhenExaminingFunctionWithALocalFunction, self).setup()
         def local_function():
             return 'local function return'
-        mote.FunctionLocals.return_value = [local_function]
+        localfunctions.FunctionLocals.return_value = [local_function]
         self.local_functions = LocalFunctions(Dingus())
 
     def should_return_functions_by_name(self):
@@ -31,7 +31,7 @@ class WhenExaminingFunctionWithALocalFunction(BaseFixture):
 class WhenExaminingFunctionWithLocalVariables(BaseFixture):
     def setup(self):
         super(WhenExaminingFunctionWithLocalVariables, self).setup()
-        mote.FunctionLocals.return_value = ['not a function']
+        localfunctions.FunctionLocals.return_value = ['not a function']
         self.local_function = LocalFunctions(Dingus(), '')
 
     def should_not_include_local_variable(self):
@@ -44,7 +44,7 @@ class WhenExaminingFunctionWithLocalCallable(BaseFixture):
         class Callable:
             def __call__(self):
                 pass
-        mote.FunctionLocals.return_value = [Callable()]
+        localfunctions.FunctionLocals.return_value = [Callable()]
         self.local_function = LocalFunctions(Dingus(), '')
 
     def should_not_include_callable_that_isnt_function(self):
@@ -59,9 +59,9 @@ class WhenExtractingCases(BaseFixture):
         def when_doing_something(): pass
         self.does_something = does_something
         self.when_doing_something = when_doing_something
-        mote.FunctionLocals.return_value = [does_something,
-                                            _some_non_spec_function,
-                                            when_doing_something]
+        localfunctions.FunctionLocals.return_value = [does_something,
+                                                      _some_non_spec_function,
+                                                      when_doing_something]
 
         self.local_functions = LocalFunctions.case_functions(Dingus())
 
@@ -77,7 +77,7 @@ class WhenExtractingContexts(BaseFixture):
         super(WhenExtractingContexts, self).setup()
         def when_doing_something(): pass
         def some_function(): pass
-        mote.FunctionLocals.return_value = [when_doing_something,
+        localfunctions.FunctionLocals.return_value = [when_doing_something,
                                             some_function]
 
         self.local_functions = LocalFunctions.context_functions(Dingus())

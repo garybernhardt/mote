@@ -1,8 +1,8 @@
 import sys
 
 from dingus import Dingus, DingusTestCase
-import mote
-from mote import FunctionLocals
+from mote import localfunctions
+from mote.localfunctions import FunctionLocals
 
 
 BaseFixture = DingusTestCase(FunctionLocals)
@@ -11,7 +11,7 @@ BaseFixture = DingusTestCase(FunctionLocals)
 class WhenExaminingFunctionWithALocalFunction(BaseFixture):
     def setup(self):
         super(WhenExaminingFunctionWithALocalFunction, self).setup()
-        mote.sys = sys
+        localfunctions.sys = sys
         def function():
             def local_function():
                 return 'local function return'
