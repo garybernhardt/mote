@@ -21,12 +21,17 @@ class WhenExaminingFunctionWithALocalFunction(BaseFixture):
         def parent_function():
             def local_function():
                 return 'local function return'
+            def other_local_function():
+                return 'other local function return'
         self.local_functions = LocalFunctions(parent_function)
 
     def should_return_functions_by_name(self):
         local_function = self.local_functions.function_with_name(
             'local_function')
         assert local_function() == 'local function return'
+
+    def should_find_multiple_functions(self):
+        assert len(self.local_functions) == 2
 
 
 class WhenExaminingFunctionWithLocalVariables(BaseFixture):
