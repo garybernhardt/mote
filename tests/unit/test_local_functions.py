@@ -3,24 +3,25 @@ import re
 from types import FunctionType
 
 from dingus import Dingus, DingusTestCase
-from mote import localfunctions
+from mote import localfunctions as mod
 from mote.localfunctions import LocalFunctions
 
 
-class BaseFixture(DingusTestCase(LocalFunctions)):
+class BaseFixture(DingusTestCase(mod.LocalFunctions,
+                                 'FunctionLocals',
+                                 'sys',
+                                 'FunctionType')):
     def setup(self):
         super(BaseFixture, self).setup()
-        localfunctions.re = re
-        localfunctions.FunctionType = FunctionType
 
 
 class WhenExaminingFunctionWithALocalFunction(BaseFixture):
     def setup(self):
         super(WhenExaminingFunctionWithALocalFunction, self).setup()
-        def local_function():
-            return 'local function return'
-        localfunctions.FunctionLocals.return_value = [local_function]
-        self.local_functions = LocalFunctions(Dingus())
+        def parent_function():
+            def local_function():
+                return 'local function return'
+        self.local_functions = LocalFunctions(parent_function)
 
     def should_return_functions_by_name(self):
         local_function = self.local_functions.function_with_name(
@@ -31,7 +32,7 @@ class WhenExaminingFunctionWithALocalFunction(BaseFixture):
 class WhenExaminingFunctionWithLocalVariables(BaseFixture):
     def setup(self):
         super(WhenExaminingFunctionWithLocalVariables, self).setup()
-        localfunctions.FunctionLocals.return_value = ['not a function']
+        mod.FunctionLocals.return_value = ['not a function']
         self.local_function = LocalFunctions(Dingus(), '')
 
     def should_not_include_local_variable(self):
@@ -44,7 +45,7 @@ class WhenExaminingFunctionWithLocalCallable(BaseFixture):
         class Callable:
             def __call__(self):
                 pass
-        localfunctions.FunctionLocals.return_value = [Callable()]
+        mod.FunctionLocals.return_value = [Callable()]
         self.local_function = LocalFunctions(Dingus(), '')
 
     def should_not_include_callable_that_isnt_function(self):
@@ -54,35 +55,29 @@ class WhenExaminingFunctionWithLocalCallable(BaseFixture):
 class WhenExtractingCases(BaseFixture):
     def setup(self):
         super(WhenExtractingCases, self).setup()
-        def does_something(): pass
-        def _some_non_spec_function(): pass
-        def when_doing_something(): pass
-        self.does_something = does_something
-        self.when_doing_something = when_doing_something
-        localfunctions.FunctionLocals.return_value = [does_something,
-                                                      _some_non_spec_function,
-                                                      when_doing_something]
+        def parent_function():
+            def does_something(): return 'does_something'
+            def _some_non_spec_function(): return '_some_non_spec_function'
+            def when_doing_something(): return 'when_doing_something'
+        self.local_functions = LocalFunctions.case_functions(parent_function)
+        self.all_return_values = [fn() for fn in self.local_functions]
 
-        self.local_functions = LocalFunctions.case_functions(Dingus())
-
-    def should_include_functions(self):
-        assert self.does_something in self.local_functions
+    def should_include_case_functions(self):
+        assert 'does_something' in self.all_return_values
 
     def should_not_include_contexts(self):
-        assert self.when_doing_something not in self.local_functions
+        assert 'when_doing_something' not in self.all_return_values
 
 
 class WhenExtractingContexts(BaseFixture):
     def setup(self):
         super(WhenExtractingContexts, self).setup()
-        def when_doing_something(): pass
-        def some_function(): pass
-        localfunctions.FunctionLocals.return_value = [when_doing_something,
-                                            some_function]
-
-        self.local_functions = LocalFunctions.context_functions(Dingus())
+        def parent_function():
+            def when_doing_something(): return 'when_doing_something'
+            def some_function(): return 'some_function'
+        self.functions = LocalFunctions.context_functions(parent_function)
 
     def should_only_include_context_functions(self):
-        assert (len(self.local_functions) == 1 and
-                self.local_functions[0].__name__ == 'when_doing_something')
+        assert (len(self.functions) == 1 and
+                self.functions[0]() == 'when_doing_something')
 
