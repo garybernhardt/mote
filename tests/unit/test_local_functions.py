@@ -37,7 +37,6 @@ class WhenExaminingFunctionWithALocalFunction(BaseFixture):
 class WhenExaminingFunctionWithLocalVariables(BaseFixture):
     def setup(self):
         super(WhenExaminingFunctionWithLocalVariables, self).setup()
-        mod.FunctionLocals.return_value = ['not a function']
         self.local_function = LocalFunctions(Dingus(), '')
 
     def should_not_include_local_variable(self):
@@ -50,7 +49,6 @@ class WhenExaminingFunctionWithLocalCallable(BaseFixture):
         class Callable:
             def __call__(self):
                 pass
-        mod.FunctionLocals.return_value = [Callable()]
         self.local_function = LocalFunctions(Dingus(), '')
 
     def should_not_include_callable_that_isnt_function(self):
