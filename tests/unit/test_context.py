@@ -15,7 +15,6 @@ class BaseFixture(DingusTestCase(Context)):
         self.context_function = Dingus()
         self.context_function.__name__ = 'test_context_function'
         mote.LocalFunctions.case_functions.return_value = [self.case_function]
-        mote.SortedFunctions.return_value = [self.case_function]
         self.context = Context(self.context_function)
 
 
@@ -29,9 +28,6 @@ class WhenRunningContextFromFunction(BaseFixture):
         assert mote.LocalFunctions.calls('case_functions',
                                          self.context_function)
 
-    def should_sort_functions(self):
-        assert mote.SortedFunctions.calls('()', [self.case_function])
-
     def should_take_name_from_function(self):
         assert self.context.name == 'test_context_function'
 
@@ -44,7 +40,7 @@ class WhenRunningMultipleCases(BaseFixture):
         super(WhenRunningMultipleCases, self).setup()
         self.context_function = Dingus()
         self.case_functions = [Dingus(), Dingus()]
-        mote.SortedFunctions.return_value = self.case_functions
+        mote.LocalFunctions.case_functions.return_value = self.case_functions
         self.context = Context(self.context_function)
 
     def should_create_cases(self):
@@ -65,7 +61,7 @@ class WhenContextsAreNested(BaseFixture):
         self.when_frobbing = when_frobbing
         def some_function(): pass
 
-        mote.SortedFunctions.return_value = [when_frobbing]
+        mote.LocalFunctions.context_functions.return_value = [when_frobbing]
         self.context_function = Dingus()
         self.context = Context(self.context_function)
 
@@ -79,10 +75,6 @@ class WhenContextsAreNested(BaseFixture):
         assert mote.LocalFunctions.calls('context_functions',
                                          self.context_function).one()
 
-    def should_sort_extracted_context_functions(self):
-        context_functions = mote.LocalFunctions.context_functions.return_value
-        assert mote.SortedFunctions.calls('()', context_functions).one()
-
     def should_use_child_context_function_to_create_child_context(self):
         inner_context_function = mote.Context.calls('()').one().args[0]
         assert inner_context_function.__name__ == 'when_frobbing'
@@ -91,7 +83,7 @@ class WhenContextsAreNested(BaseFixture):
 class WhenCasesFail(BaseFixture):
     def setup(self):
         super(WhenCasesFail, self).setup()
-        mote.SortedFunctions.return_value = [Dingus()]
+        mote.LocalFunctions.return_value = [Dingus()]
         mote.Case.return_value = Dingus(success=False)
         self.context = Context(Dingus())
 
@@ -102,7 +94,7 @@ class WhenCasesFail(BaseFixture):
 class WhenNestedContextsFail(BaseFixture):
     def setup(self):
         super(WhenNestedContextsFail, self).setup()
-        mote.SortedFunctions.return_value = [Dingus()]
+        mote.LocalFunctions.return_value = [Dingus()]
         mote.Context.return_value = Dingus(success=False)
         self.context = Context(Dingus())
 
@@ -113,7 +105,7 @@ class WhenNestedContextsFail(BaseFixture):
 class WhenCasesAndNestedContextsPass(BaseFixture):
     def setup(self):
         super(WhenCasesAndNestedContextsPass, self).setup()
-        mote.SortedFunctions.return_value = [Dingus()]
+        mote.LocalFunctions.return_value = [Dingus()]
         mote.Case.return_value = Dingus(success=True)
         mote.Context.return_value = Dingus(success=True)
         self.context = Context(Dingus())
@@ -125,7 +117,6 @@ class WhenCasesAndNestedContextsPass(BaseFixture):
 class WhenGettingFreshFunctions(BaseFixture):
     def setup(self):
         super(WhenGettingFreshFunctions, self).setup()
-        mote.SortedFunctions.return_value = [Dingus()]
         self.context_function = Dingus()
         context = Context(self.context_function)
         self.fresh_function = context.fresh_function_named('child_fn')
@@ -143,7 +134,7 @@ class WhenGettingFreshFunctions(BaseFixture):
 class WhenContextHasParent(BaseFixture):
     def setup(self):
         super(WhenContextHasParent, self).setup()
-        mote.SortedFunctions.return_value = [Dingus()]
+        mote.LocalFunctions.return_value = [Dingus()]
         self.context_function, self.parent = Dingus.many(2)
         self.context = Context(self.context_function, self.parent)
 

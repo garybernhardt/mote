@@ -57,20 +57,16 @@ class LocalFunctions(list):
         return name.startswith('when_')
 
     def _local_functions_in_frame(self):
-        return [local_obj
-                for local_obj
-                in FunctionLocals(self.function)
-                if isinstance(local_obj, FunctionType)
-                and self.name_filter_fn(local_obj.__name__)]
+        functions = [local_obj
+                     for local_obj
+                     in FunctionLocals(self.function)
+                     if isinstance(local_obj, FunctionType)
+                     and self.name_filter_fn(local_obj.__name__)]
+        return sorted(functions,
+                      key=lambda fn: fn.func_code.co_firstlineno)
 
     def function_with_name(self, name):
         return [function
                 for function in self
                 if function.__name__ == name][0]
-
-
-class SortedFunctions(list):
-    def __init__(self, functions):
-        self.extend(sorted(functions,
-                           key=lambda fn: fn.func_code.co_firstlineno))
 

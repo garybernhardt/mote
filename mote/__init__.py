@@ -4,7 +4,7 @@ from optparse import OptionParser
 import sys
 from itertools import chain
 import re
-from mote.localfunctions import LocalFunctions, SortedFunctions
+from mote.localfunctions import LocalFunctions
 
 
 class DummyTestCase(unittest.TestCase):
@@ -93,12 +93,10 @@ class Context:
     def _collect_contexts(self):
         local_functions = LocalFunctions.context_functions(
             self.context_function)
-        sorted_functions = SortedFunctions(local_functions)
-        return [Context(function, self) for function in sorted_functions]
+        return [Context(function, self) for function in local_functions]
 
     def _collect_cases(self):
         case_functions = LocalFunctions.case_functions(self.context_function)
-        case_functions = SortedFunctions(case_functions)
         cases = [Case(self, case_function.__name__)
                  for case_function in case_functions]
         return cases

@@ -33,6 +33,17 @@ class WhenExaminingFunctionWithALocalFunction(BaseFixture):
     def should_find_multiple_functions(self):
         assert len(self.local_functions) == 2
 
+    def should_sort_functions_by_line_number(self):
+        def parent_function():
+            def local_function(): return 'first'
+            def other_local_function(): return 'second'
+        def parent_function_reversed():
+            def other_local_function(): return 'first'
+            def local_function(): return 'second'
+        assert (LocalFunctions(parent_function)[0]() ==
+                LocalFunctions(parent_function_reversed)[0]() ==
+                'first')
+
 
 class WhenExaminingFunctionWithLocalVariables(BaseFixture):
     def setup(self):
