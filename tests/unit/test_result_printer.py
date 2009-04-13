@@ -5,7 +5,7 @@ import mote
 from mote import ResultPrinter
 
 
-class WithPatchedStdOut(DingusTestCase(ResultPrinter)):
+class WithPatchedStdOut(DingusTestCase(ResultPrinter, 'count')):
     def setup(self):
         super(WithPatchedStdOut, self).setup()
         mote.sys = Dingus()
@@ -33,17 +33,26 @@ class WhenCasesPass(WithPatchedStdOut):
 class WhenCasesFail(WithPatchedStdOut):
     def setup(self):
         super(WhenCasesFail, self).setup()
-        self.case = Dingus(pretty_name='should frob',
-                           success=False,
-                           exception=AssertionError(),
-                           exception_line=3)
+        self.case1 = Dingus(pretty_name='should 1',
+                            success=False,
+                            exception=AssertionError(),
+                            failure=Dingus(exception_line=3))
+        self.case2 = Dingus(pretty_name='should 2',
+                            success=False,
+                            exception=AssertionError(),
+                            failure=Dingus(exception_line=5))
         self.context = Dingus(pretty_name='describe frobber',
-                              cases=[self.case],
+                              cases=[self.case1, self.case2],
                               contexts=[])
         ResultPrinter([self.context])
 
     def should_print_failure_message(self):
-        assert self._wrote('  - should frob -> FAIL (AssertionError @ 3)\n')
+        assert self._wrote('  - should 1 -> FAIL (AssertionError @ 3)\n')
+        assert self._wrote('  - should 2 -> FAIL (AssertionError @ 5)\n')
+
+    def should_number_failures(self):
+        assert self.case1.failure.number == 1
+        assert self.case2.failure.number == 2
 
 
 class WhenCasesAreInNestedContexts(WithPatchedStdOut):

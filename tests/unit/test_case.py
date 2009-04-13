@@ -53,6 +53,9 @@ class WhenTestFunctionRaisesException(DingusTestCase(Case)):
     def should_store_exception(self):
         assert isinstance(self.case.exception, AssertionError)
 
-    def should_store_line_number(self):
-        assert self.case.exception_line == 3
+    def should_create_failure(self):
+        assert mote.Failure.calls('()', mote.sys.exc_info.return_value).one()
+
+    def should_store_failure_globally(self):
+        assert self.case.failure is mote.Failure.return_value
 

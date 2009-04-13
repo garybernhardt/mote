@@ -2,8 +2,10 @@ import os
 import unittest
 from optparse import OptionParser
 import sys
-from itertools import chain
+from itertools import chain, count
 import re
+import traceback
+
 from mote.localfunctions import LocalFunctions
 
 
@@ -58,12 +60,24 @@ class Case:
         try:
             case_function()
         except Exception, e:
-            exc_type, exc_value, traceback = sys.exc_info()
-            self.exception_line = traceback.tb_next.tb_lineno
+            self.failure = Failure(sys.exc_info())
             self.success = False
             self.exception = e
         else:
             self.success = True
+
+
+class Failure:
+    def __init__(self, exc_info):
+        self.exc_type, self.exc_value, self.exc_traceback = exc_info
+        self.exception_line = self.exc_traceback.tb_next.tb_lineno
+
+    def format_exception(self):
+        traceback_lines = traceback.format_exception(
+            self.exc_type,
+            self.exc_value,
+            self.exc_traceback.tb_next)
+        return '\n%s\n' % ''.join(traceback_lines)
 
 
 class PythonFilesInDirectory(list):
@@ -125,15 +139,26 @@ class ResultPrinter:
 
     def _failing_case_status(self, case):
         exception_name = case.exception.__class__.__name__
-        exception_line = case.exception_line
-        return ' -> FAIL (%s @ %i)' % (exception_name, exception_line)
+        failure = case.failure
+        return ' -> FAIL (%s @ %i)' % (exception_name,
+                                       failure.exception_line)
 
     def _print_cases(self, cases, padding):
+        failure_numbers = count(1)
+
         for case in cases:
-            result = '' if case.success else self._failing_case_status(case)
+            if case.success:
+                result = ''
+            else:
+                case.failure.number = failure_numbers.next()
+                result = self._failing_case_status(case)
+
             sys.stdout.write('%s  - %s%s\n' % (padding,
-                                             case.pretty_name,
-                                             result))
+                                               case.pretty_name,
+                                               result))
+
+            if not case.success:
+                sys.stdout.write(case.failure.format_exception())
 
     def _print_contexts(self, contexts, padding):
         for context in contexts:

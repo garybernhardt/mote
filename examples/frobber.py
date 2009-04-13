@@ -42,6 +42,12 @@ def describe_frobber():
 #   describe that has been frazzled
 #     - should not be ready to frob
 #     - should be ready to frob -> FAIL (AssertionError @ 28)
+#
+# Traceback (most recent call last):
+#   File "$ROOT/examples/frobber.py", line 28, in should_be_ready_to_frob
+#     assert frobber.ready_to_frob
+# AssertionError
+#
 #   describe that has been frobbed
 #     - should have spam
 # Specs failed

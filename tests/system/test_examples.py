@@ -12,6 +12,7 @@ class TestExamples(SystemTest):
         output_lines = file_contents[output_marker + 2:]
         output_lines = [line[2:] for line in output_lines]
         output = '\n'.join(output_lines)
+        output = output.replace('$ROOT', os.getcwd())
         self._assert_output_equals(output)
 
     def should_match_output_in_example_comments(self):

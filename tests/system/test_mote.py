@@ -93,14 +93,8 @@ class WhenCasesRaiseExceptions(SystemTest):
         self._assert_fails()
 
     def should_output_spec_with_failures(self):
-        expected = dedent(
-            '''\
-            describe integers incorrectly
-              - should add correctly
-              - should add incorrectly -> FAIL (AssertionError @ 5)
-            Specs failed
-            ''')
-        self._assert_output_equals(expected)
+        output = self._output()
+        assert 'should add incorrectly -> FAIL (AssertionError @ 5)' in output
 
 
 class WhenRunningMote(SystemTest):
