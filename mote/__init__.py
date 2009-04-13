@@ -7,6 +7,7 @@ import re
 import traceback
 
 from mote.localfunctions import LocalFunctions
+from dingus import Dingus, DingusTestCase
 
 
 class DummyTestCase(unittest.TestCase):
@@ -24,7 +25,22 @@ def raises(exception, callable_, *args, **kwargs):
         return True
 
 
-DEFAULT_GLOBALS = dict(raises=raises)
+# XXX: Replace this!
+#   1) It was not TDDed
+#   2) It doesn't clean up after itself, leaving the module broken
+def isolate(object_under_test, *exclusions):
+    def decorator(fn):
+        def new_fn(*args, **kwargs):
+            DingusTestCase(object_under_test, *exclusions)().setup()
+            return fn(*args, **kwargs)
+        new_fn.__name__ = fn.__name__
+        return new_fn
+    return decorator
+
+
+DEFAULT_GLOBALS = dict(raises=raises,
+                       isolate=isolate,
+                       Dingus=Dingus)
 
 
 class SpecSuite:

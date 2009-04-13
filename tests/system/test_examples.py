@@ -1,4 +1,5 @@
 import os
+from glob import glob
 
 
 from tests.system.test_mote import SystemTest
@@ -19,12 +20,12 @@ class TestExamples(SystemTest):
         base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__),
                                                 '..',
                                                 '..'))
-        examples_dir = os.path.join(base_dir, 'examples')
-        example_file_paths = [path
-                              for path in os.listdir(examples_dir)
-                              if path.endswith('.py')]
+
+        example_file_paths = (glob('examples/*_spec.py') +
+                              glob('examples/**/*_spec.py'))
 
         for path in example_file_paths:
-            abs_path = os.path.join(examples_dir, path)
-            yield self.assert_output_matches_comments, abs_path
+            if not os.path.basename(path) == '__init__.py':
+                abs_path = os.path.join(base_dir, path)
+                yield self.assert_output_matches_comments, abs_path
 
