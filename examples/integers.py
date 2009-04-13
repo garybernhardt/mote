@@ -12,8 +12,8 @@ def describe_integers():
 #
 # describe integers
 #   when adding one and one
-#     should get two
+#     - should get two
 #   when dividing by zero
-#     should raise zero division error
+#     - should raise zero division error
 # All specs passed
 

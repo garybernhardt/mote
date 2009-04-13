@@ -37,12 +37,12 @@ def describe_frobber():
 # Output:
 #
 # describe frobber
-#   should be ready to frob
-#   should not have spam
+#   - should be ready to frob
+#   - should not have spam
 #   when frazzled
-#     should not be ready to frob
-#     should be ready to frob -> FAIL (AssertionError @ 28)
+#     - should not be ready to frob
+#     - should be ready to frob -> FAIL (AssertionError @ 28)
 #   when frobbed
-#     should have spam
+#     - should have spam
 # Specs failed
 

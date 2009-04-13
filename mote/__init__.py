@@ -120,7 +120,7 @@ class ResultPrinter:
     def _print_cases(self, cases, padding):
         for case in cases:
             result = '' if case.success else self._failing_case_status(case)
-            sys.stdout.write('%s  %s%s\n' % (padding,
+            sys.stdout.write('%s  - %s%s\n' % (padding,
                                              case.pretty_name,
                                              result))
 

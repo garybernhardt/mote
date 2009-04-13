@@ -73,7 +73,7 @@ class WhenCasesRaiseNoExceptions(SystemTest):
         expected = dedent(
             '''\
             describe integers
-              should add correctly
+              - should add correctly
             All specs passed
             ''')
         self._assert_output_equals(expected)
@@ -96,8 +96,8 @@ class WhenCasesRaiseExceptions(SystemTest):
         expected = dedent(
             '''\
             describe integers incorrectly
-              should add correctly
-              should add incorrectly -> FAIL (AssertionError @ 5)
+              - should add correctly
+              - should add incorrectly -> FAIL (AssertionError @ 5)
             Specs failed
             ''')
         self._assert_output_equals(expected)
@@ -158,7 +158,7 @@ class WhenRunningMote(SystemTest):
             '''\
             describe integers
               when dividing by zero
-                should raise zero division error
+                - should raise zero division error
             All specs passed
             ''')
 
@@ -172,7 +172,7 @@ class WhenRunningMote(SystemTest):
         self._assert_output_equals(
             '''\
             describe integers
-              can be added
+              - can be added
             All specs passed
             ''')
 

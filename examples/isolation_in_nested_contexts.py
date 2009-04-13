@@ -17,7 +17,7 @@ def describe_foo():
 #   when nested
 #     when nested more
 #       when nested even more
-#         should have a fresh iterator the first time
-#         should have a fresh iterator the second time
+#         - should have a fresh iterator the first time
+#         - should have a fresh iterator the second time
 # All specs passed
 

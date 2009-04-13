@@ -27,7 +27,7 @@ class WhenCasesPass(WithPatchedStdOut):
         assert self._wrote('describe frobber\n')
 
     def should_print_case_name(self):
-        assert self._wrote('  should frob\n')
+        assert self._wrote('  - should frob\n')
 
 
 class WhenCasesFail(WithPatchedStdOut):
@@ -43,7 +43,7 @@ class WhenCasesFail(WithPatchedStdOut):
         ResultPrinter([self.context])
 
     def should_print_failure_message(self):
-        assert self._wrote('  should frob -> FAIL (AssertionError @ 3)\n')
+        assert self._wrote('  - should frob -> FAIL (AssertionError @ 3)\n')
 
 
 class WhenCasesAreInNestedContexts(WithPatchedStdOut):
