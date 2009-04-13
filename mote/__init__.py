@@ -110,7 +110,10 @@ class Context:
     @property
     def pretty_name(self):
         name = self.name.replace('_', ' ')
-        return re.sub('^describe ', '', name)
+        name = re.sub('^describe ', '', name)
+        if self.parent is not None:
+            name = '%s %s' % (self.parent.pretty_name, name)
+        return name
 
     @property
     def context_function(self):
@@ -136,10 +139,10 @@ class Context:
 
 
 class ResultPrinter:
-    PADDING_PER_LINE = '  '
+    CASE_INDENT = ' ' * 2
 
     def __init__(self, contexts):
-        self._print_contexts(contexts, '')
+        self._print_contexts(contexts)
 
     def _failing_case_status(self, case):
         exception_name = case.exception.__class__.__name__
@@ -147,7 +150,7 @@ class ResultPrinter:
         return ' -> FAIL (%s @ %i)' % (exception_name,
                                        failure.exception_line)
 
-    def _print_cases(self, cases, padding):
+    def _print_cases(self, cases):
         failure_numbers = count(1)
 
         for case in cases:
@@ -157,20 +160,19 @@ class ResultPrinter:
                 case.failure.number = failure_numbers.next()
                 result = self._failing_case_status(case)
 
-            sys.stdout.write('%s  - %s%s\n' % (padding,
+            sys.stdout.write('%s- %s%s\n' % (self.CASE_INDENT,
                                                case.pretty_name,
                                                result))
 
             if not case.success:
                 sys.stdout.write(case.failure.format_exception())
 
-    def _print_contexts(self, contexts, padding):
+    def _print_contexts(self, contexts):
         for context in contexts:
-            sys.stdout.write('%s%s\n' % (padding,
-                                         context.pretty_name))
-            self._print_cases(context.cases, padding)
-            self._print_contexts(context.contexts,
-                                 padding + self.PADDING_PER_LINE)
+            if context.cases:
+                sys.stdout.write('%s\n' % context.pretty_name)
+                self._print_cases(context.cases)
+            self._print_contexts(context.contexts)
 
 
 if __name__ == '__main__':

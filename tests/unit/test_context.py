@@ -81,6 +81,16 @@ class WhenContextsAreNested(BaseFixture):
         assert inner_context_function.__name__ == 'when_frobbing'
 
 
+class WhenContextsHaveParents(BaseFixture):
+    def setup(self):
+        super(WhenContextsHaveParents, self).setup()
+        self.parent = Dingus('parent', pretty_name = 'parent')
+        self.context = Context(Dingus('describe_details'), self.parent)
+
+    def should_have_pretty_name_containing_parent_context(self):
+        assert self.context.pretty_name == 'parent details'
+
+
 class WhenCasesFail(BaseFixture):
     def setup(self):
         super(WhenCasesFail, self).setup()

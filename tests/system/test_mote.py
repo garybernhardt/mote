@@ -132,11 +132,13 @@ class WhenRunningMote(SystemTest):
             def some_callable():
                 pass
             def describe_foo():
-                pass
+                def should_do_stuff():
+                    pass
             ''')
         self._assert_output_equals(
             '''\
             foo
+              - should do stuff
             All specs passed
             ''')
 
@@ -144,15 +146,14 @@ class WhenRunningMote(SystemTest):
         self._write_test_file(
             '''
             def describe_integers():
-                def describe_dividing_by_zero():
+                def describe_divided_by_zero():
                     def should_raise_zero_division_error():
                         assert raises(ZeroDivisionError, lambda: 1 / 0)
             ''')
         self._assert_output_equals(
             '''\
-            integers
-              dividing by zero
-                - should raise zero division error
+            integers divided by zero
+              - should raise zero division error
             All specs passed
             ''')
 
@@ -174,12 +175,15 @@ class WhenRunningMote(SystemTest):
         self._write_test_file(
             '''
             def describe_integers():
+                def should_do_stuff():
+                    pass
                 def _not_a_spec():
                     pass
             ''')
         self._assert_output_equals(
             '''\
             integers
+              - should do stuff
             All specs passed
             ''')
 
@@ -190,11 +194,14 @@ class WhenRunningMote(SystemTest):
                 def __call__(self):
                     pass
             def describe_integers():
+                def should_do_stuff():
+                    pass
                 callable = Callable()
             ''')
         self._assert_output_equals(
             '''\
             integers
+              - should do stuff
             All specs passed
             ''')
 
@@ -286,11 +293,13 @@ class WhenTestsAreInNestedDirectories(SystemTest):
         file(test_path, 'w').write(dedent(
             '''
             def describe_nested_file():
-                pass
+                def should_do_stuff():
+                    pass
             '''))
         self._assert_output_equals(
             '''\
             nested file
+              - should do stuff
             All specs passed
             ''',
             test_path=parent_path)
@@ -317,14 +326,17 @@ class WhenMultipleTestFilesExist(SystemTest):
             file(path, 'w').write(dedent(
                 '''
                 def describe_path():
-                    pass
+                    def should_do_stuff():
+                        pass
                 '''))
 
     def should_find_both_files(self):
         self._assert_output_equals(
             '''\
             path
+              - should do stuff
             path
+              - should do stuff
             All specs passed
             ''',
             test_path = self.dir_path)

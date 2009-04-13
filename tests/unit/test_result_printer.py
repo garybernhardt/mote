@@ -18,13 +18,13 @@ class WhenCasesPass(WithPatchedStdOut):
     def setup(self):
         super(WhenCasesPass, self).setup()
         self.case = Dingus(pretty_name='should frob')
-        self.context = Dingus(pretty_name='describe frobber',
+        self.context = Dingus(pretty_name='frobber',
                               cases=[self.case],
                               contexts=[])
         ResultPrinter([self.context])
 
     def should_print_context_name(self):
-        assert self._wrote('describe frobber\n')
+        assert self._wrote('frobber\n')
 
     def should_print_case_name(self):
         assert self._wrote('  - should frob\n')
@@ -58,16 +58,19 @@ class WhenCasesFail(WithPatchedStdOut):
 class WhenCasesAreInNestedContexts(WithPatchedStdOut):
     def setup(self):
         super(WhenCasesAreInNestedContexts, self).setup()
-        self.case = Dingus(pretty_name='should frob',
-                           success=True)
-        self.inner_context = Dingus(pretty_name='when frobbing',
-                                    cases=[self.case],
+        self.inner_context = Dingus(pretty_name='frobber that is awesome',
+                                    cases=[Dingus(pretty_name='case')],
                                     contexts=[])
-        self.outer_context = Dingus(pretty_name='describe frobber',
-                                    contexts=[self.inner_context],
+        self.outer_context = Dingus(contexts=[self.inner_context],
                                     cases=[])
         ResultPrinter([self.outer_context])
 
-    def should_print_inner_context_results(self):
-        assert self._wrote('  when frobbing\n')
+    def should_combine_context_names(self):
+        assert self._wrote('frobber that is awesome\n')
+
+    def shouldnt_print_anything_else(self):
+        printed_lines = [call.args[0]
+                         for call in mote.sys.stdout.calls('write')]
+        assert set(printed_lines) == set(['frobber that is awesome\n',
+                                          '  - case\n'])
 
