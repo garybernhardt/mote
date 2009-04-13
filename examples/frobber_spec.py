@@ -44,7 +44,7 @@ def describe_frobber():
 #   - should be ready to frob -> FAIL (AssertionError @ 28)
 #
 # Traceback (most recent call last):
-#   File "$ROOT/examples/frobber.py", line 28, in should_be_ready_to_frob
+#   File "$ROOT/examples/frobber_spec.py", line 28, in should_be_ready_to_frob
 #     assert frobber.ready_to_frob
 # AssertionError
 #
