@@ -2,10 +2,10 @@ import sys
 
 from dingus import Dingus, DingusTestCase
 import mote
-from mote import ResultPrinter
+from mote import SpecOutputPrinter
 
 
-class WithPatchedStdOut(DingusTestCase(ResultPrinter, 'count')):
+class WithPatchedStdOut(DingusTestCase(SpecOutputPrinter, 'count')):
     def setup(self):
         super(WithPatchedStdOut, self).setup()
         mote.sys = Dingus()
@@ -21,7 +21,7 @@ class WhenCasesPass(WithPatchedStdOut):
         self.context = Dingus(pretty_name='frobber',
                               cases=[self.case],
                               contexts=[])
-        ResultPrinter([self.context])
+        SpecOutputPrinter([self.context])
 
     def should_print_context_name(self):
         assert self._wrote('frobber\n')
@@ -44,7 +44,7 @@ class WhenCasesFail(WithPatchedStdOut):
         self.context = Dingus(pretty_name='describe frobber',
                               cases=[self.case1, self.case2],
                               contexts=[])
-        ResultPrinter([self.context])
+        SpecOutputPrinter([self.context])
 
     def should_print_failure_message(self):
         assert self._wrote('  - should 1 -> FAIL (AssertionError @ 3)\n')
@@ -63,7 +63,7 @@ class WhenCasesAreInNestedContexts(WithPatchedStdOut):
                                     contexts=[])
         self.outer_context = Dingus(contexts=[self.inner_context],
                                     cases=[])
-        ResultPrinter([self.outer_context])
+        SpecOutputPrinter([self.outer_context])
 
     def should_combine_context_names(self):
         assert self._wrote('frobber that is awesome\n')

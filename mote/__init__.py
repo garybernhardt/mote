@@ -156,7 +156,7 @@ class Context:
         return local_functions.function_with_name(name)
 
 
-class ResultPrinter:
+class SpecOutputPrinter:
     CASE_INDENT = ' ' * 2
 
     def __init__(self, contexts):
@@ -203,7 +203,7 @@ if __name__ == '__main__':
     suite = SpecSuite(modules)
 
     if not options.quiet:
-        ResultPrinter(suite.contexts)
+        SpecOutputPrinter(suite.contexts)
 
     if suite.success:
         print 'All specs passed'
