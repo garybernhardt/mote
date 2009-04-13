@@ -51,7 +51,7 @@ def describe_HTTP_handler():
                                      'Content-length': True}.get)
             handler = handler_with_parent_and_request(parent, req)
 
-            def content_header_gets_added():
+            def adds_content_header():
                 assert req.calls('add_unredirected_header',
                                  'Content-type',
                                  'application/x-www-form-urlencoded').once()
@@ -79,6 +79,6 @@ def handler_with_parent_and_request(parent, req):
 # HTTP handler processing a post
 #   - adds headers from request object
 # HTTP handler processing a post without a content header
-#   - content header gets added
+#   - adds content header
 # All specs passed
 
