@@ -10,10 +10,10 @@ def describe_integer():
 
 # Output:
 #
-# describe integer
-#   describe sum of one and one
+# integer
+#   sum of one and one
 #     - should get two
-#   describe divided by zero
+#   divided by zero
 #     - should raise zero division error
 # All specs passed
 

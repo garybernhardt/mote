@@ -101,12 +101,16 @@ class Context:
         self.original_context_function = context_function
         self.parent = parent
         self.name = context_function.__name__
-        self.pretty_name = self.name.replace('_', ' ')
         self.cases = self._collect_cases()
         self.contexts = self._collect_contexts()
         self.success = (all(case.success for case in self.cases)
                         and
                         all(ctx.success for ctx in self.contexts))
+
+    @property
+    def pretty_name(self):
+        name = self.name.replace('_', ' ')
+        return re.sub('^describe ', '', name)
 
     @property
     def context_function(self):

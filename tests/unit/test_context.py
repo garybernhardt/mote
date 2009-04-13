@@ -3,7 +3,7 @@ import mote
 from mote import Context
 
 
-class BaseFixture(DingusTestCase(Context)):
+class BaseFixture(DingusTestCase(Context, 're')):
     def setup(self):
         super(BaseFixture, self).setup()
 
@@ -13,7 +13,7 @@ class BaseFixture(DingusTestCase(Context)):
 
     def _run_context_with_case_function(self, case_function):
         self.context_function = Dingus()
-        self.context_function.__name__ = 'test_context_function'
+        self.context_function.__name__ = 'describe_something'
         mote.LocalFunctions.case_functions.return_value = [self.case_function]
         self.context = Context(self.context_function)
 
@@ -29,10 +29,10 @@ class WhenRunningContextFromFunction(BaseFixture):
                                          self.context_function)
 
     def should_take_name_from_function(self):
-        assert self.context.name == 'test_context_function'
+        assert self.context.name == 'describe_something'
 
     def should_have_pretty_name(self):
-        assert self.context.pretty_name == 'test context function'
+        assert self.context.pretty_name == 'something'
 
 
 class WhenRunningMultipleCases(BaseFixture):

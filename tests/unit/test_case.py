@@ -3,7 +3,7 @@ import mote
 from mote import Case
 
 
-class WhenRunningCase(DingusTestCase(Case)):
+class WhenRunningCase(DingusTestCase(Case, 're')):
     def setup(self):
         super(WhenRunningCase, self).setup()
         self.context = Dingus()

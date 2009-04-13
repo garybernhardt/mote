@@ -72,7 +72,7 @@ class WhenCasesRaiseNoExceptions(SystemTest):
     def should_output_spec(self):
         expected = dedent(
             '''\
-            describe integers
+            integers
               - should add correctly
             All specs passed
             ''')
@@ -136,7 +136,7 @@ class WhenRunningMote(SystemTest):
             ''')
         self._assert_output_equals(
             '''\
-            describe foo
+            foo
             All specs passed
             ''')
 
@@ -150,8 +150,8 @@ class WhenRunningMote(SystemTest):
             ''')
         self._assert_output_equals(
             '''\
-            describe integers
-              describe dividing by zero
+            integers
+              dividing by zero
                 - should raise zero division error
             All specs passed
             ''')
@@ -165,7 +165,7 @@ class WhenRunningMote(SystemTest):
             ''')
         self._assert_output_equals(
             '''\
-            describe integers
+            integers
               - can be added
             All specs passed
             ''')
@@ -179,7 +179,7 @@ class WhenRunningMote(SystemTest):
             ''')
         self._assert_output_equals(
             '''\
-            describe integers
+            integers
             All specs passed
             ''')
 
@@ -194,7 +194,7 @@ class WhenRunningMote(SystemTest):
             ''')
         self._assert_output_equals(
             '''\
-            describe integers
+            integers
             All specs passed
             ''')
 
@@ -222,7 +222,7 @@ class WhenContextsAreNested(SystemTest):
     def should_run_cases_before_contexts_within_same_parent_context(self):
         output = self._output()
         case_location = output.index('should be built in')
-        context_location = output.index('describe adding')
+        context_location = output.index('adding')
         assert case_location < context_location
 
     def should_report_failing_specs(self):
@@ -290,7 +290,7 @@ class WhenTestsAreInNestedDirectories(SystemTest):
             '''))
         self._assert_output_equals(
             '''\
-            describe nested file
+            nested file
             All specs passed
             ''',
             test_path=parent_path)
@@ -323,8 +323,8 @@ class WhenMultipleTestFilesExist(SystemTest):
     def should_find_both_files(self):
         self._assert_output_equals(
             '''\
-            describe path
-            describe path
+            path
+            path
             All specs passed
             ''',
             test_path = self.dir_path)

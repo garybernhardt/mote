@@ -30,14 +30,14 @@ def describe_foo():
 
 # Output:
 #
-# describe foo
-#   describe nested
-#     describe nested more
-#       describe nested even more
+# foo
+#   nested
+#     nested more
+#       nested even more
 #         - should have fresh iterator the first time
 #         - should have fresh iterator the second time
-#     describe sibling context with child
-#       describe child of sibling
+#     sibling context with child
+#       child of sibling
 #         - should have fresh iterator
 # All specs passed
 
