@@ -7,7 +7,7 @@ import re
 import traceback
 
 from mote.localfunctions import LocalFunctions
-from dingus import Dingus, DingusTestCase
+from dingus import Dingus, DingusTestCase, DontCare, exception_raiser
 
 
 class DummyTestCase(unittest.TestCase):
@@ -40,7 +40,9 @@ def isolate(object_under_test, *exclusions):
 
 DEFAULT_GLOBALS = dict(raises=raises,
                        isolate=isolate,
-                       Dingus=Dingus)
+                       Dingus=Dingus,
+                       DontCare=DontCare,
+                       exception_raiser=exception_raiser)
 
 
 class SpecSuite:
