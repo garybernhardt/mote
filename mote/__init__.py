@@ -11,7 +11,18 @@ class DummyTestCase(unittest.TestCase):
     def nop(self):
         pass
 
-DEFAULT_GLOBALS = dict(assert_raises=DummyTestCase('nop').failUnlessRaises)
+
+def raises(exception, callable_, *args, **kwargs):
+    try:
+        assert_raises = DummyTestCase('nop').failUnlessRaises
+        assert_raises(exception, callable_, *args, **kwargs)
+    except AssertionError:
+        return False
+    else:
+        return True
+
+
+DEFAULT_GLOBALS = dict(raises=raises)
 
 
 class SpecSuite:

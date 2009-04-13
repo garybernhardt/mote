@@ -146,13 +146,13 @@ class WhenRunningMote(SystemTest):
             All specs passed
             ''')
 
-    def should_have_assert_raises_function(self):
+    def should_have_raises_function(self):
         self._write_test_file(
             '''
             def describe_integers():
                 def when_dividing_by_zero():
                     def should_raise_zero_division_error():
-                        assert_raises(ZeroDivisionError, lambda: 1 / 0)
+                        assert raises(ZeroDivisionError, lambda: 1 / 0)
             ''')
         self._assert_output_equals(
             '''\

@@ -6,7 +6,7 @@ def describe_integers():
 
     def when_dividing_by_zero():
         def should_raise_zero_division_error():
-            assert_raises(ZeroDivisionError, lambda: 1 / 0)
+            assert raises(ZeroDivisionError, lambda: 1 / 0)
 
 # Output:
 #

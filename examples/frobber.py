@@ -16,7 +16,7 @@ def describe_frobber():
         assert frobber.ready_to_frob
 
     def should_not_have_spam():
-        assert_raises(AttributeError, lambda: frobber.spam)
+        assert raises(AttributeError, lambda: frobber.spam)
 
     def when_frazzled():
         frobber.frazzle()
