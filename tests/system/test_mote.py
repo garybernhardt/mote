@@ -14,15 +14,16 @@ class SystemTest(object):
         content = dedent(content)
         file(self.test_file_path, 'w').write(content)
 
-    def _output(self, test_path=None, args=None):
-        test_path = self.test_file_path if test_path is None else test_path
-        return self._run_mote(test_path, args)
+    def _output(self, test_paths=None, args=None):
+        if test_paths is None:
+            test_paths = [self.test_file_path]
+        return self._run_mote(test_paths, args)
 
     def _assert_output_equals(self,
                               expected_output,
-                              test_path=None,
+                              test_paths=None,
                               args=None):
-        output = self._output(test_path, args)
+        output = self._output(test_paths, args)
         if output != dedent(expected_output):
             raise AssertionError(
                 'Expected output:\n---\n%s\n---\nbut got:\n---\n%s\n---\n' %
@@ -34,13 +35,12 @@ class SystemTest(object):
     def _assert_fails(self):
         self._assert_output_equals('Specs failed\n', args=['--quiet'])
 
-    def _run_mote(self, test_file_name, args):
+    def _run_mote(self, test_paths, args):
         args = [] if args is None else args
-        base_dir = os.path.dirname(__file__)
-        test_path = os.path.join(base_dir, test_file_name)
-        process = subprocess.Popen(['python', '-m', 'mote', test_path] + args,
-                                   stdout=subprocess.PIPE,
-                                   stderr=subprocess.STDOUT)
+        process = subprocess.Popen(
+            ['python', '-m', 'mote'] + test_paths + args,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT)
         process.wait()
         return process.stdout.read()
 
@@ -302,7 +302,7 @@ class WhenTestsAreInNestedDirectories(SystemTest):
               - should do stuff
             All specs passed
             ''',
-            test_path=parent_path)
+            test_paths=[parent_path])
 
     def should_find_tests_nested_one_level_deep(self):
         dir_path = tempfile.mkdtemp('mote_system_test')
@@ -339,5 +339,26 @@ class WhenMultipleTestFilesExist(SystemTest):
               - should do stuff
             All specs passed
             ''',
-            test_path = self.dir_path)
+            test_paths=[self.dir_path])
+
+
+class WhenMultipleTestFilesAreGivenAsArguments(SystemTest):
+    def setup(self):
+        super(WhenMultipleTestFilesAreGivenAsArguments, self).setup()
+        root = os.path.join(os.path.dirname(__file__),
+                            'fixtures',
+                            'multiple_files')
+        self.paths = [os.path.join(root, 'spec_file_%i.py' % index)
+                      for index in (1, 2)]
+
+    def should_run_all_files(self):
+        self._assert_output_equals(
+            '''\
+            spec file 1
+              - should be run
+            spec file 2
+              - should be run
+            All specs passed
+            ''',
+            test_paths=self.paths)
 

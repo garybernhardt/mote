@@ -180,8 +180,10 @@ if __name__ == '__main__':
     parser.add_option('-q', '--quiet', action='store_true', dest='quiet')
     options, args = parser.parse_args()
 
-    suite = SpecSuite(map(ImportedModule,
-                          PythonFilesInDirectory(args[0])))
+    paths = list(chain(*[PythonFilesInDirectory(path) for path in args]))
+    modules = map(ImportedModule, paths)
+    suite = SpecSuite(modules)
+
     if not options.quiet:
         ResultPrinter(suite.contexts)
 
