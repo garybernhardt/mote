@@ -150,14 +150,14 @@ class WhenRunningMote(SystemTest):
         self._write_test_file(
             '''
             def describe_integers():
-                def when_dividing_by_zero():
+                def describe_dividing_by_zero():
                     def should_raise_zero_division_error():
                         assert raises(ZeroDivisionError, lambda: 1 / 0)
             ''')
         self._assert_output_equals(
             '''\
             describe integers
-              when dividing by zero
+              describe dividing by zero
                 - should raise zero division error
             All specs passed
             ''')
@@ -213,11 +213,11 @@ class WhenContextsAreNested(SystemTest):
             def describe_integers():
                 def should_be_built_in():
                     assert 'int' in __builtins__
-                def when_adding():
+                def describe_adding():
                     value = 1 + 1
                     def should_get_sum():
                         assert value == 2
-                    def when_something_is_wrong():
+                    def describe_something_is_wrong():
                         def should_fail():
                             assert 1 == 2
             ''')
@@ -228,7 +228,7 @@ class WhenContextsAreNested(SystemTest):
     def should_run_cases_before_contexts_within_same_parent_context(self):
         output = self._output()
         case_location = output.index('should be built in')
-        context_location = output.index('when adding')
+        context_location = output.index('describe adding')
         assert case_location < context_location
 
     def should_report_failing_specs(self):
@@ -241,7 +241,7 @@ class WhenRunningStatefulNestedContexts(SystemTest):
             import itertools
             def describe_test_with_stateful_context():
                 iterator = itertools.count()
-                def when_in_inner_context():
+                def describe_in_inner_context():
                     def should_get_0_from_iterator_in_first_case():
                         assert iterator.next() == 0
                     def should_get_1_from_iterator_in_second_case():
@@ -253,18 +253,18 @@ class WhenRunningStatefulNestedContexts(SystemTest):
         self._write_test_file('''
             def describe_test_with_stateful_context():
                 calls = ['describe']
-                def when_1():
-                    calls.append('when_1')
-                    assert calls == ['describe', 'when_1']
+                def describe_1():
+                    calls.append('describe_1')
+                    assert calls == ['describe', 'describe_1']
                     def should_1():
                         calls.append('should_1')
-                        assert calls == ['describe', 'when_1', 'should_1']
-                def when_2():
-                    calls.append('when_2')
-                    assert calls == ['describe', 'when_2']
+                        assert calls == ['describe', 'describe_1', 'should_1']
+                def describe_2():
+                    calls.append('describe_2')
+                    assert calls == ['describe', 'describe_2']
                     def should_2():
                         calls.append('should_2')
-                        assert calls == ['describe', 'when_2', 'should_2']
+                        assert calls == ['describe', 'describe_2', 'should_2']
             ''')
         self._assert_succeeds()
 

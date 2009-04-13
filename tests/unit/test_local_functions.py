@@ -72,7 +72,7 @@ class WhenExtractingCases(BaseFixture):
         def parent_function():
             def does_something(): return 'does_something'
             def _some_non_spec_function(): return '_some_non_spec_function'
-            def when_doing_something(): return 'when_doing_something'
+            def describe_doing_something(): return 'describe_doing_something'
         self.local_functions = LocalFunctions.case_functions(parent_function)
         self.all_return_values = [fn() for fn in self.local_functions]
 
@@ -80,18 +80,18 @@ class WhenExtractingCases(BaseFixture):
         assert 'does_something' in self.all_return_values
 
     def should_not_include_contexts(self):
-        assert 'when_doing_something' not in self.all_return_values
+        assert 'describe_doing_something' not in self.all_return_values
 
 
 class WhenExtractingContexts(BaseFixture):
     def setup(self):
         super(WhenExtractingContexts, self).setup()
         def parent_function():
-            def when_doing_something(): return 'when_doing_something'
+            def describe_doing_something(): return 'describe_doing_something'
             def some_function(): return 'some_function'
         self.functions = LocalFunctions.context_functions(parent_function)
 
     def should_only_include_context_functions(self):
         assert (len(self.functions) == 1 and
-                self.functions[0]() == 'when_doing_something')
+                self.functions[0]() == 'describe_doing_something')
 

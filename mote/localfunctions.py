@@ -46,7 +46,7 @@ class LocalFunctions(list):
     @staticmethod
     def _is_case_function(name):
         return (not name.startswith('_') and
-                not name.startswith('when_'))
+                not name.startswith('describe_'))
 
     @classmethod
     def context_functions(cls, context_function):
@@ -54,7 +54,7 @@ class LocalFunctions(list):
 
     @staticmethod
     def _is_context_function(name):
-        return name.startswith('when_')
+        return name.startswith('describe_')
 
     def _local_functions_in_frame(self):
         functions = [local_obj

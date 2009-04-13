@@ -18,7 +18,7 @@ def describe_frobber():
     def should_not_have_spam():
         assert raises(AttributeError, lambda: frobber.spam)
 
-    def when_frazzled():
+    def describe_that_has_been_frazzled():
         frobber.frazzle()
 
         def should_not_be_ready_to_frob():
@@ -27,7 +27,7 @@ def describe_frobber():
         def should_be_ready_to_frob(): # FAILS - contradicts previous test
             assert frobber.ready_to_frob
 
-    def when_frobbed():
+    def describe_that_has_been_frobbed():
         frobber.frob()
 
         def should_have_spam():
@@ -39,10 +39,10 @@ def describe_frobber():
 # describe frobber
 #   - should be ready to frob
 #   - should not have spam
-#   when frazzled
+#   describe that has been frazzled
 #     - should not be ready to frob
 #     - should be ready to frob -> FAIL (AssertionError @ 28)
-#   when frobbed
+#   describe that has been frobbed
 #     - should have spam
 # Specs failed
 
