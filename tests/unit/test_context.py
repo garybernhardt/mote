@@ -59,14 +59,15 @@ class WhenContextsAreNested(BaseFixture):
 
         def when_frobbing(): pass
         self.when_frobbing = when_frobbing
-        def some_function(): pass
 
         mote.LocalFunctions.context_functions.return_value = [when_frobbing]
         self.context_function = Dingus()
         self.context = Context(self.context_function)
 
     def should_create_context(self):
-        assert mote.Context.calls('()', self.when_frobbing, self.context).one()
+        assert mote.Context.calls('()',
+                                  self.when_frobbing,
+                                  self.context).one()
 
     def should_collect_contexts(self):
         assert self.context.contexts == [mote.Context.return_value]
