@@ -5,6 +5,6 @@ setup(name='mote',
       description='Mote',
       author='Gary Bernhardt',
       author_email='gary.bernhardt@gmail.com',
-      packages=find_packages(),
+      packages=['mote'],
       license='BSD',
      )
