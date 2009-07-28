@@ -179,15 +179,9 @@ class SpecOutputPrinter:
     def __init__(self, suite):
         self.suite = suite
 
-    def print_normally(self):
+    def print_result(self):
         self._print_contexts(self.suite.contexts)
-        self.print_quietly()
-
-    def print_quietly(self):
-        if self.suite.success:
-            sys.stdout.write('OK\n')
-        else:
-            sys.stdout.write('Specs failed\n')
+        QuietPrinter(self.suite).print_result()
 
     def _failing_context_status(self, context):
         exception_name = context.exception.__class__.__name__
@@ -219,6 +213,15 @@ class SpecOutputPrinter:
                 self._print_case(context)
 
 
+class QuietPrinter:
+    def __init__(self, suite):
+        self.suite = suite
+
+    def print_result(self):
+        message = 'OK' if self.suite.success else 'Specs failed'
+        sys.stdout.write('%s\n' % message)
+
+
 if __name__ == '__main__':
     parser = OptionParser()
     parser.add_option('-q', '--quiet', action='store_true', dest='quiet')
@@ -228,9 +231,6 @@ if __name__ == '__main__':
     modules = map(ImportedModule, paths)
     suite = SpecSuite(modules)
 
-    printer = SpecOutputPrinter(suite)
-    if options.quiet:
-        printer.print_quietly()
-    else:
-        printer.print_normally()
+    printer_class = QuietPrinter if options.quiet else SpecOutputPrinter
+    printer_class(suite).print_result()
 

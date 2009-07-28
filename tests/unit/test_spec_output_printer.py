@@ -3,19 +3,16 @@ import sys
 from dingus import Dingus, DingusTestCase
 import mote
 from mote import SpecOutputPrinter
+from tests.unit.patchedstdout import PatchedStdoutMixin
 
 
-class WithPatchedStdOut(DingusTestCase(SpecOutputPrinter, 'count')):
+class WithPatchedStdOut(DingusTestCase(SpecOutputPrinter,
+                                       'count',
+                                       'QuietPrinter'),
+                        PatchedStdoutMixin(mote)):
     def setup(self):
         super(WithPatchedStdOut, self).setup()
         mote.sys = Dingus()
-
-    def _wrote(self, text):
-        return mote.sys.stdout.calls('write', text).one()
-
-    def _printed_lines(self):
-        return [call.args[0]
-                for call in mote.sys.stdout.calls('write')]
 
 
 class WhenCasesPass(WithPatchedStdOut):
@@ -27,7 +24,7 @@ class WhenCasesPass(WithPatchedStdOut):
         context = Dingus(pretty_name='frobber',
                          children=[case])
         suite = Dingus(contexts=[context])
-        SpecOutputPrinter(suite).print_normally()
+        SpecOutputPrinter(suite).print_result()
 
     def should_print_context_names_and_status(self):
         assert self._printed_lines() == ['frobber\n',
@@ -57,7 +54,7 @@ class WhenCasesFail(WithPatchedStdOut):
         context = Dingus(pretty_name='describe frobber',
                          children=[case1, case2])
         suite = Dingus(contexts=[context], success=False)
-        SpecOutputPrinter(suite).print_normally()
+        SpecOutputPrinter(suite).print_result()
 
     def should_print_context_names_and_status(self):
         expected = ['describe frobber\n',
@@ -85,7 +82,7 @@ class WhenCasesAreInNestedContexts(WithPatchedStdOut):
                                children=[inner_context],
                                has_cases=False)
         suite = Dingus(contexts=[outer_context])
-        SpecOutputPrinter(suite).print_normally()
+        SpecOutputPrinter(suite).print_result()
 
     def should_combine_context_names(self):
         assert self._wrote('outer context inner context\n')
@@ -94,18 +91,4 @@ class WhenCasesAreInNestedContexts(WithPatchedStdOut):
         assert self._printed_lines() == ['outer context inner context\n',
                                          '  - case\n',
                                          'OK\n']
-
-
-class WhenRunningQuietly(WithPatchedStdOut):
-    def setup(self):
-        super(WhenRunningQuietly, self).setup()
-        context = Dingus('case',
-                         pretty_name='case',
-                         children=[],
-                         has_cases=False)
-        suite = Dingus(contexts=[context])
-        SpecOutputPrinter(suite).print_quietly()
-
-    def should_only_print_result(self):
-        assert self._printed_lines() == ['OK\n']
 
