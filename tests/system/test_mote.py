@@ -30,7 +30,7 @@ class SystemTest(object):
                 (expected_output, output))
 
     def _assert_succeeds(self):
-        self._assert_output_equals('All specs passed\n', args=['--quiet'])
+        self._assert_output_equals('OK\n', args=['--quiet'])
 
     def _assert_fails(self):
         self._assert_output_equals('Specs failed\n', args=['--quiet'])
@@ -53,7 +53,7 @@ class WhenRunningQuietly(SystemTest):
                 def should_add_correctly():
                     assert 1 + 1 == 2
             ''')
-        self._assert_output_equals('All specs passed\n', args=['--quiet'])
+        self._assert_output_equals('OK\n', args=['--quiet'])
 
 
 class WhenCasesRaiseNoExceptions(SystemTest):
@@ -74,7 +74,7 @@ class WhenCasesRaiseNoExceptions(SystemTest):
             '''\
             integers
               - should add correctly
-            All specs passed
+            OK
             ''')
         self._assert_output_equals(expected)
 
@@ -139,7 +139,7 @@ class WhenRunningMote(SystemTest):
             '''\
             foo
               - should do stuff
-            All specs passed
+            OK
             ''')
 
     def should_have_raises_function(self):
@@ -154,7 +154,7 @@ class WhenRunningMote(SystemTest):
             '''\
             integers divided by zero
               - should raise zero division error
-            All specs passed
+            OK
             ''')
 
     def should_treat_callables_as_specs(self):
@@ -168,7 +168,7 @@ class WhenRunningMote(SystemTest):
             '''\
             integers
               - can be added
-            All specs passed
+            OK
             ''')
 
     def should_not_treat_functions_with_leading_underscores_as_specs(self):
@@ -184,7 +184,7 @@ class WhenRunningMote(SystemTest):
             '''\
             integers
               - should do stuff
-            All specs passed
+            OK
             ''')
 
     def should_not_treat_callables_that_arent_functions_as_specs(self):
@@ -202,7 +202,7 @@ class WhenRunningMote(SystemTest):
             '''\
             integers
               - should do stuff
-            All specs passed
+            OK
             ''')
 
 
@@ -300,7 +300,7 @@ class WhenTestsAreInNestedDirectories(SystemTest):
             '''\
             nested file
               - should do stuff
-            All specs passed
+            OK
             ''',
             test_paths=[parent_path])
 
@@ -337,7 +337,7 @@ class WhenMultipleTestFilesExist(SystemTest):
               - should do stuff
             path
               - should do stuff
-            All specs passed
+            OK
             ''',
             test_paths=[self.dir_path])
 
@@ -358,7 +358,7 @@ class WhenMultipleTestFilesAreGivenAsArguments(SystemTest):
               - should be run
             spec file 2
               - should be run
-            All specs passed
+            OK
             ''',
             test_paths=self.paths)
 

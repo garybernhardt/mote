@@ -10,5 +10,5 @@ def describe_isolation_on_class_A():
 #
 # isolation on class A
 #   - replaces class B with dingus
-# All specs passed
+# OK
 

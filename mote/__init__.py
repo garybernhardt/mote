@@ -176,8 +176,18 @@ class Context:
 class SpecOutputPrinter:
     INDENT = ' ' * 2
 
-    def __init__(self, contexts):
-        self._print_contexts(contexts)
+    def __init__(self, suite):
+        self.suite = suite
+
+    def print_normally(self):
+        self._print_contexts(self.suite.contexts)
+        self.print_quietly()
+
+    def print_quietly(self):
+        if self.suite.success:
+            sys.stdout.write('OK\n')
+        else:
+            sys.stdout.write('Specs failed\n')
 
     def _failing_context_status(self, context):
         exception_name = context.exception.__class__.__name__
@@ -218,11 +228,9 @@ if __name__ == '__main__':
     modules = map(ImportedModule, paths)
     suite = SpecSuite(modules)
 
-    if not options.quiet:
-        SpecOutputPrinter(suite.contexts)
-
-    if suite.success:
-        print 'All specs passed'
+    printer = SpecOutputPrinter(suite)
+    if options.quiet:
+        printer.print_quietly()
     else:
-        print 'Specs failed'
+        printer.print_normally()
 

@@ -29,5 +29,5 @@ def describe_a_list():
 #   - has a length
 #   - knows what it contains
 #   - knows what it doesnt contain
-# All specs passed
+# OK
 

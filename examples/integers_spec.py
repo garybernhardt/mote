@@ -14,5 +14,5 @@ def describe_integer():
 #   - should get two
 # integer when divided by zero
 #   - should raise zero division error
-# All specs passed
+# OK
 

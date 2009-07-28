@@ -35,5 +35,5 @@ def describe_foo():
 #   - should have fresh iterator the second time
 # foo nested sibling context with child child of sibling
 #   - should have fresh iterator
-# All specs passed
+# OK
 
