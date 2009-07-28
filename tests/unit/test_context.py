@@ -112,6 +112,25 @@ class WhenCasesAndNestedContextsPass(BaseFixture):
         assert self.context.success
 
 
+class WhenContextFunctionRaisesException(BaseFixture):
+    def setup(self):
+        super(WhenContextFunctionRaisesException, self).setup()
+        mote.LocalFunctions= exception_raiser(AssertionError)
+        self.context = Context(Dingus())
+
+    def should_fail(self):
+        assert not self.context.success
+
+    def should_store_exception(self):
+        assert isinstance(self.context.exception, AssertionError)
+
+    def should_create_failure(self):
+        assert mote.Failure.calls('()', mote.sys.exc_info.return_value).one()
+
+    def should_store_failure_globally(self):
+        assert self.context.failure is mote.Failure.return_value
+
+
 class WhenGettingFreshFunctions(BaseFixture):
     def setup(self):
         super(WhenGettingFreshFunctions, self).setup()
