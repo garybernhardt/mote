@@ -66,35 +66,25 @@ class ImportedModule(dict):
         execfile(filename, self)
 
 
-class Case:
-    def __init__(self, context, name):
-        self.context = context
-        self.name = name
-        self.pretty_name = name.replace('_', ' ')
-        self._run()
-
-    def _run(self):
-        case_function = self.context.fresh_function_named(self.name)
-        try:
-            case_function()
-        except Exception, e:
-            self.failure = Failure(sys.exc_info())
-            self.success = False
-            self.exception = e
-        else:
-            self.success = True
-
-
 class Failure:
     def __init__(self, exc_info):
         self.exc_type, self.exc_value, self.exc_traceback = exc_info
-        self.exception_line = self.exc_traceback.tb_next.tb_lineno
+        mote_dir = os.path.dirname(os.path.abspath(__file__))
+        tb_level = self.exc_traceback
+        while tb_level:
+            tb_level_dir = os.path.abspath(tb_level.tb_frame.f_code.co_filename)
+            if not tb_level_dir.startswith(mote_dir):
+                break
+            else:
+                tb_level = tb_level.tb_next
+        self.tb_level = tb_level
+        self.exception_line = tb_level.tb_lineno
 
     def format_exception(self):
         traceback_lines = traceback.format_exception(
             self.exc_type,
             self.exc_value,
-            self.exc_traceback.tb_next)
+            self.tb_level)
         return '\n%s\n' % ''.join(traceback_lines)
 
 
@@ -119,19 +109,34 @@ class Context:
         self.original_context_function = context_function
         self.parent = parent
         self.name = context_function.__name__
-        self.cases = self._collect_cases()
-        self.contexts = self._collect_contexts()
-        self.success = (all(case.success for case in self.cases)
-                        and
-                        all(ctx.success for ctx in self.contexts))
+        self.children = self._collect_children()
+        if self.success and self.children:
+            self.success = all(child.success for child in self.children)
+
+    @property
+    def has_cases(self):
+        return self.children and any(child
+                                     for child in self.children
+                                     if not child.children)
 
     @property
     def pretty_name(self):
-        name = self.name.replace('_', ' ')
-        name = re.sub('^describe ', '', name)
+        if self.children:
+            return self._pretty_name_with_children
+        else:
+            return self._pretty_name_without_children
+
+    @property
+    def _pretty_name_with_children(self):
+        name = self._pretty_name_without_children
         if self.parent is not None:
             name = '%s %s' % (self.parent.pretty_name, name)
         return name
+
+    @property
+    def _pretty_name_without_children(self):
+        name = self.name.replace('_', ' ')
+        return re.sub('^describe ', '', name)
 
     @property
     def context_function(self):
@@ -140,57 +145,59 @@ class Context:
         else:
             return self.original_context_function
 
-    def _collect_contexts(self):
-        local_functions = LocalFunctions.context_functions(
-            self.context_function)
-        return [Context(function, self) for function in local_functions]
-
-    def _collect_cases(self):
-        case_functions = LocalFunctions.case_functions(self.context_function)
-        cases = [Case(self, case_function.__name__)
-                 for case_function in case_functions]
-        return cases
-
     def fresh_function_named(self, name):
         local_functions = LocalFunctions(self.context_function)
         return local_functions.function_with_name(name)
 
+    def _collect_children(self):
+        try:
+            local_functions = LocalFunctions(self.context_function)
+        except Exception, e:
+            self.failure = Failure(sys.exc_info())
+            self.success = False
+            self.exception = e
+        else:
+            self.success = True
+            return [Context(function, self) for function in local_functions]
+
 
 class SpecOutputPrinter:
-    CASE_INDENT = ' ' * 2
+    INDENT = ' ' * 2
 
     def __init__(self, contexts):
         self._print_contexts(contexts)
 
-    def _failing_case_status(self, case):
-        exception_name = case.exception.__class__.__name__
-        failure = case.failure
+    def _failing_context_status(self, context):
+        exception_name = context.exception.__class__.__name__
+        failure = context.failure
         return ' -> FAIL (%s @ %i)' % (exception_name,
                                        failure.exception_line)
 
-    def _print_cases(self, cases):
+    def _print_case(self, context):
         failure_numbers = count(1)
 
-        for case in cases:
-            if case.success:
-                result = ''
-            else:
-                case.failure.number = failure_numbers.next()
-                result = self._failing_case_status(case)
+        if context.success:
+            result = ''
+        else:
+            context.failure.number = failure_numbers.next()
+            result = self._failing_context_status(context)
 
-            sys.stdout.write('%s- %s%s\n' % (self.CASE_INDENT,
-                                               case.pretty_name,
-                                               result))
+        sys.stdout.write('%s- %s%s\n' % (self.INDENT,
+                                         context.pretty_name,
+                                         result))
 
-            if not case.success:
-                sys.stdout.write(case.failure.format_exception())
+        if not context.success:
+            sys.stdout.write(context.failure.format_exception())
 
     def _print_contexts(self, contexts):
         for context in contexts:
-            if context.cases:
+            if context.has_cases:
                 sys.stdout.write('%s\n' % context.pretty_name)
-                self._print_cases(context.cases)
-            self._print_contexts(context.contexts)
+
+            if context.children:
+                self._print_contexts(context.children)
+            else:
+                self._print_case(context)
 
 
 if __name__ == '__main__':

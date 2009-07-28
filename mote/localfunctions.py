@@ -34,7 +34,7 @@ class LocalFunctions(list):
     def __init__(self, function, name_filter_fn=None):
         self.function = function
         if name_filter_fn is None:
-            self.name_filter_fn = lambda name: True
+            self.name_filter_fn = lambda name: not name.startswith('_')
         else:
             self.name_filter_fn = name_filter_fn
         self.extend(self._local_functions_in_frame())
