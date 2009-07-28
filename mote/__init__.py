@@ -1,4 +1,5 @@
 import os
+from os.path import dirname, abspath
 import unittest
 from optparse import OptionParser
 import sys
@@ -68,24 +69,31 @@ class ImportedModule(dict):
 
 class Failure:
     def __init__(self, exc_info):
-        self.exc_type, self.exc_value, self.exc_traceback = exc_info
-        mote_dir = os.path.dirname(os.path.abspath(__file__))
-        tb_level = self.exc_traceback
-        while tb_level:
-            tb_level_dir = os.path.abspath(tb_level.tb_frame.f_code.co_filename)
-            if not tb_level_dir.startswith(mote_dir):
+        self.exc_type, self.exc_value, exc_traceback = exc_info
+        self.exc_traceback = self._remove_mote_from_traceback(exc_traceback)
+        self.exception_line = self.exc_traceback.tb_lineno
+        self.exc_info = exc_info
+
+    @property
+    def formatted_exception(self):
+        traceback_lines = traceback.format_exception(self.exc_type,
+                                                     self.exc_value,
+                                                     self.exc_traceback)
+        return ''.join(traceback_lines)
+
+    def _remove_mote_from_traceback(self, traceback):
+        mote_dir = dirname(abspath(__file__))
+        while True:
+            frame = traceback.tb_frame
+            code = frame.f_code
+            filename = code.co_filename
+            code_dir = dirname(abspath(filename))
+            if code_dir != mote_dir:
                 break
             else:
-                tb_level = tb_level.tb_next
-        self.tb_level = tb_level
-        self.exception_line = tb_level.tb_lineno
+                traceback = traceback.tb_next
 
-    def format_exception(self):
-        traceback_lines = traceback.format_exception(
-            self.exc_type,
-            self.exc_value,
-            self.tb_level)
-        return '\n%s\n' % ''.join(traceback_lines)
+        return traceback
 
 
 class PythonFilesInDirectory(list):
@@ -114,10 +122,14 @@ class Context:
             self.success = all(child.success for child in self.children)
 
     @property
+    def is_case(self):
+        return not self.children
+
+    @property
     def has_cases(self):
         return self.children and any(child
                                      for child in self.children
-                                     if not child.children)
+                                     if child.is_case)
 
     @property
     def pretty_name(self):
@@ -174,12 +186,9 @@ class SpecOutputPrinter:
                                        failure.exception_line)
 
     def _print_case(self, context):
-        failure_numbers = count(1)
-
         if context.success:
             result = ''
         else:
-            context.failure.number = failure_numbers.next()
             result = self._failing_context_status(context)
 
         sys.stdout.write('%s- %s%s\n' % (self.INDENT,
@@ -187,7 +196,7 @@ class SpecOutputPrinter:
                                          result))
 
         if not context.success:
-            sys.stdout.write(context.failure.format_exception())
+            sys.stdout.write('\n%s\n' % context.failure.formatted_exception)
 
     def _print_contexts(self, contexts):
         for context in contexts:

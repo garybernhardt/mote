@@ -17,10 +17,9 @@ class WithPatchedStdOut(DingusTestCase(SpecOutputPrinter, 'count')):
 class WhenCasesPass(WithPatchedStdOut):
     def setup(self):
         super(WhenCasesPass, self).setup()
-        self.case = Dingus(pretty_name='should frob')
+        self.case = Dingus(pretty_name='should frob', children=[])
         self.context = Dingus(pretty_name='frobber',
-                              cases=[self.case],
-                              contexts=[])
+                              children=[self.case])
         SpecOutputPrinter([self.context])
 
     def should_print_context_name(self):
@@ -36,41 +35,53 @@ class WhenCasesFail(WithPatchedStdOut):
         self.case1 = Dingus(pretty_name='should 1',
                             success=False,
                             exception=AssertionError(),
-                            failure=Dingus(exception_line=3))
+                            failure=Dingus(
+                                exception_line=3,
+                                formatted_exception='traceback1'),
+                            children=[])
         self.case2 = Dingus(pretty_name='should 2',
                             success=False,
                             exception=AssertionError(),
-                            failure=Dingus(exception_line=5))
+                            failure=Dingus(
+                                exception_line=5,
+                                formatted_exception='traceback2'),
+                            children=[])
         self.context = Dingus(pretty_name='describe frobber',
-                              cases=[self.case1, self.case2],
-                              contexts=[])
+                              children=[self.case1, self.case2])
         SpecOutputPrinter([self.context])
 
     def should_print_failure_message(self):
         assert self._wrote('  - should 1 -> FAIL (AssertionError @ 3)\n')
         assert self._wrote('  - should 2 -> FAIL (AssertionError @ 5)\n')
 
-    def should_number_failures(self):
-        assert self.case1.failure.number == 1
-        assert self.case2.failure.number == 2
+    def should_print_traceback(self):
+        assert self._wrote('\ntraceback1\n')
+        assert self._wrote('\ntraceback2\n')
 
 
 class WhenCasesAreInNestedContexts(WithPatchedStdOut):
     def setup(self):
         super(WhenCasesAreInNestedContexts, self).setup()
-        self.inner_context = Dingus(pretty_name='frobber that is awesome',
-                                    cases=[Dingus(pretty_name='case')],
-                                    contexts=[])
-        self.outer_context = Dingus(contexts=[self.inner_context],
-                                    cases=[])
-        SpecOutputPrinter([self.outer_context])
+        case = Dingus('case',
+                      pretty_name='case',
+                      children=[],
+                      has_cases=False)
+        inner_context = Dingus('inner_context',
+                               pretty_name='outer context inner context',
+                               children=[case],
+                               has_cases=True)
+        outer_context = Dingus('outer_context',
+                               pretty_name='outer context',
+                               children=[inner_context],
+                               has_cases=False)
+        SpecOutputPrinter([outer_context])
 
     def should_combine_context_names(self):
-        assert self._wrote('frobber that is awesome\n')
+        assert self._wrote('outer context inner context\n')
 
     def shouldnt_print_anything_else(self):
         printed_lines = [call.args[0]
                          for call in mote.sys.stdout.calls('write')]
-        assert set(printed_lines) == set(['frobber that is awesome\n',
+        assert set(printed_lines) == set(['outer context inner context\n',
                                           '  - case\n'])
 
