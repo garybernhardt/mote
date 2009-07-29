@@ -24,7 +24,7 @@ class WhenCasesPass(WithPatchedStdOut):
         context = Dingus(pretty_name='frobber',
                          children=[case])
         suite = Dingus(contexts=[context])
-        SpecOutputPrinter(suite).print_result()
+        SpecOutputPrinter().print_suite(suite)
 
     def should_print_context_names_and_status(self):
         assert self._printed_lines() == ['frobber\n',
@@ -54,7 +54,7 @@ class WhenCasesFail(WithPatchedStdOut):
         context = Dingus(pretty_name='describe frobber',
                          children=[case1, case2])
         suite = Dingus(contexts=[context], success=False)
-        SpecOutputPrinter(suite).print_result()
+        SpecOutputPrinter().print_suite(suite)
 
     def should_print_context_names_and_status(self):
         expected = ['describe frobber\n',
@@ -82,7 +82,7 @@ class WhenCasesAreInNestedContexts(WithPatchedStdOut):
                                children=[inner_context],
                                has_cases=False)
         suite = Dingus(contexts=[outer_context])
-        SpecOutputPrinter(suite).print_result()
+        SpecOutputPrinter().print_suite(suite)
 
     def should_combine_context_names(self):
         assert self._wrote('outer context inner context\n')

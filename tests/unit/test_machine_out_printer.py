@@ -21,7 +21,7 @@ class WhenCaseFails(BaseFixture):
                          children=[])
         context.name = 'some_context'
         suite = Dingus(contexts=[context])
-        MachineOutputPrinter(suite).print_result()
+        MachineOutputPrinter().print_suite(suite)
 
     def should_print_error(self):
         assert self._printed_lines() == [
@@ -36,7 +36,7 @@ class WhenParentContextFails(BaseFixture):
                          success=False,
                          children=[])
         suite = Dingus(contexts=[context])
-        MachineOutputPrinter(suite).print_result()
+        MachineOutputPrinter().print_suite(suite)
 
     def should_not_print_anything(self):
         assert self._printed_lines() == []
@@ -58,7 +58,7 @@ class WhenNestedCaseFails(BaseFixture):
                         is_case=False,
                         children=[child])
         suite = Dingus(contexts=[parent])
-        MachineOutputPrinter(suite).print_result()
+        MachineOutputPrinter().print_suite(suite)
 
     def should_print_error(self):
         assert self._printed_lines() == [
@@ -72,7 +72,7 @@ class WhenContextSucceeds(BaseFixture):
         context = Dingus(success=True,
                          children=[])
         suite = Dingus(contexts=[context])
-        MachineOutputPrinter(suite).print_result()
+        MachineOutputPrinter().print_suite(suite)
 
     def should_not_print_anything(self):
         assert self._printed_lines() == []

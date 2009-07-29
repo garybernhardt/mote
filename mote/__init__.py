@@ -189,12 +189,9 @@ class Context:
 class SpecOutputPrinter:
     INDENT = ' ' * 2
 
-    def __init__(self, suite):
-        self.suite = suite
-
-    def print_result(self):
-        self._print_contexts(self.suite.contexts)
-        QuietPrinter(self.suite).print_result()
+    def print_suite(self, suite):
+        self._print_contexts(suite.contexts)
+        QuietPrinter().print_suite(suite)
 
     def _failing_context_status(self, context):
         exception_name = context.exception.__class__.__name__
@@ -227,20 +224,14 @@ class SpecOutputPrinter:
 
 
 class QuietPrinter:
-    def __init__(self, suite):
-        self.suite = suite
-
-    def print_result(self):
-        message = 'OK' if self.suite.success else 'Specs failed'
+    def print_suite(self, suite):
+        message = 'OK' if suite.success else 'Specs failed'
         sys.stdout.write('%s\n' % message)
 
 
 class MachineOutputPrinter:
-    def __init__(self, suite):
-        self.suite = suite
-
-    def print_result(self):
-        self._print_contexts(self.suite.contexts)
+    def print_suite(self, suite):
+        self._print_contexts(suite.contexts)
 
     def _print_contexts(self, contexts):
         for context in contexts:
@@ -281,5 +272,5 @@ if __name__ == '__main__':
                        'spec': SpecOutputPrinter,
                        'machine': MachineOutputPrinter}
     printer_class = printer_classes[options.output_type]
-    printer_class(suite).print_result()
+    printer_class().print_suite(suite)
 
