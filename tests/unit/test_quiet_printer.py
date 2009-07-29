@@ -3,13 +3,13 @@ import sys
 from nose.tools import assert_raises
 from dingus import Dingus, DingusTestCase
 
-import mote
-from mote import QuietPrinter
+import mote.printers as mod
+from mote.printers import QuietPrinter
 from tests.unit.patchedstdout import PatchedStdoutMixin
 
 
 class BaseFixture(DingusTestCase(QuietPrinter),
-                  PatchedStdoutMixin(mote)):
+                  PatchedStdoutMixin(mod)):
     pass
 
 class WhenCasesPass(BaseFixture):

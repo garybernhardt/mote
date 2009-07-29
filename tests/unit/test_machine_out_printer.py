@@ -1,13 +1,14 @@
 import sys
 
 from dingus import Dingus, DingusTestCase, exception_raiser
-import mote
-from mote import MachineOutputPrinter, Failure
+import mote.printers as mod
+from mote import Failure
+from mote.printers import MachineOutputPrinter
 from tests.unit.patchedstdout import PatchedStdoutMixin
 
 
 class BaseFixture(DingusTestCase(MachineOutputPrinter),
-                  PatchedStdoutMixin(mote)):
+                  PatchedStdoutMixin(mod)):
     pass
 
 
@@ -85,9 +86,9 @@ class WhenPrintingAFailure(DingusTestCase(MachineOutputPrinter,
                                           'dirname',
                                           'abspath',
                                           '__file__',
-                                          'Failure',
+                                          'mote',
                                           'traceback'),
-                           PatchedStdoutMixin(mote)):
+                           PatchedStdoutMixin(mod)):
     def setup(self):
         super(WhenPrintingAFailure, self).setup()
 

@@ -3,21 +3,19 @@ import sys
 from nose.tools import assert_raises
 from dingus import Dingus, DingusTestCase
 
-import mote
-from mote import SpecOutputPrinter
+import mote.printers as mod
+from mote.printers import SpecOutputPrinter
 from tests.unit.patchedstdout import PatchedStdoutMixin
 
 
-class WithPatchedStdOut(DingusTestCase(SpecOutputPrinter,
-                                       'count',
-                                       'QuietPrinter'),
-                        PatchedStdoutMixin(mote)):
-    def setup(self):
-        super(WithPatchedStdOut, self).setup()
-        mote.sys = Dingus()
+class BaseFixture(DingusTestCase(SpecOutputPrinter,
+                                 'count',
+                                 'QuietPrinter'),
+                  PatchedStdoutMixin(mod)):
+    pass
 
 
-class WhenCasesPass(WithPatchedStdOut):
+class WhenCasesPass(BaseFixture):
     def setup(self):
         super(WhenCasesPass, self).setup()
         case = Dingus(pretty_name='should frob',
@@ -34,7 +32,7 @@ class WhenCasesPass(WithPatchedStdOut):
                                          'OK\n']
 
 
-class WhenCasesFail(WithPatchedStdOut):
+class WhenCasesFail(BaseFixture):
     def setup(self):
         super(WhenCasesFail, self).setup()
         case1 = Dingus(pretty_name='should 1',
@@ -68,7 +66,7 @@ class WhenCasesFail(WithPatchedStdOut):
         assert self._printed_lines() == expected
 
 
-class WhenCasesAreInNestedContexts(WithPatchedStdOut):
+class WhenCasesAreInNestedContexts(BaseFixture):
     def setup(self):
         super(WhenCasesAreInNestedContexts, self).setup()
         case = Dingus('case',
@@ -95,7 +93,7 @@ class WhenCasesAreInNestedContexts(WithPatchedStdOut):
                                          'OK\n']
 
 
-class WhenHandlingImportErrors(WithPatchedStdOut):
+class WhenHandlingImportErrors(BaseFixture):
     class FakeError(Exception):
         pass
 
