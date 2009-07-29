@@ -3,6 +3,7 @@ from os.path import dirname, abspath
 import unittest
 from optparse import OptionParser
 import sys
+from sys import stdout
 from itertools import chain, count
 import re
 import traceback
@@ -205,17 +206,17 @@ class SpecOutputPrinter:
         else:
             result = self._failing_context_status(context)
 
-        sys.stdout.write('%s- %s%s\n' % (self.INDENT,
-                                         context.pretty_name,
-                                         result))
+        stdout.write('%s- %s%s\n' % (self.INDENT,
+                                     context.pretty_name,
+                                     result))
 
         if not context.success:
-            sys.stdout.write('\n%s\n' % context.failure.formatted_exception)
+            stdout.write('\n%s\n' % context.failure.formatted_exception)
 
     def _print_contexts(self, contexts):
         for context in contexts:
             if context.has_cases:
-                sys.stdout.write('%s\n' % context.pretty_name)
+                stdout.write('%s\n' % context.pretty_name)
 
             if context.children:
                 self._print_contexts(context.children)
@@ -226,7 +227,7 @@ class SpecOutputPrinter:
 class QuietPrinter:
     def print_suite(self, suite):
         message = 'OK' if suite.success else 'Specs failed'
-        sys.stdout.write('%s\n' % message)
+        stdout.write('%s\n' % message)
 
 
 class MachineOutputPrinter:
@@ -244,8 +245,8 @@ class MachineOutputPrinter:
             self._print_contexts(context.children)
 
     def _print_case(self, case):
-        sys.stdout.write('%s: In %s\n' % (case.filename, case.name))
-        sys.stdout.write('%s:%s: error: %s\n' % (
+        stdout.write('%s: In %s\n' % (case.filename, case.name))
+        stdout.write('%s:%s: error: %s\n' % (
             case.filename,
             case.failure.exception_line,
             case.failure.exception_description))
