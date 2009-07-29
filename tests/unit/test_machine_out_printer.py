@@ -1,6 +1,8 @@
+import sys
+
 from dingus import Dingus, DingusTestCase, exception_raiser
 import mote
-from mote import MachineOutputPrinter
+from mote import MachineOutputPrinter, Failure
 from tests.unit.patchedstdout import PatchedStdoutMixin
 
 
@@ -76,4 +78,37 @@ class WhenContextSucceeds(BaseFixture):
 
     def should_not_print_anything(self):
         assert self._printed_lines() == []
+
+
+class WhenPrintingAFailure(DingusTestCase(MachineOutputPrinter,
+                                          'sys',
+                                          'dirname',
+                                          'abspath',
+                                          '__file__',
+                                          'Failure',
+                                          'traceback'),
+                           PatchedStdoutMixin(mote)):
+    def setup(self):
+        super(WhenPrintingAFailure, self).setup()
+
+        class FakeError(Exception):
+            pass
+        def outer_function():
+            inner_function()
+        def inner_function():
+            raise FakeError
+
+        try:
+            outer_function()
+        except FakeError, e:
+            exc_info = sys.exc_info()
+
+        self.failure_line = inner_function.func_code.co_firstlineno + 1
+        MachineOutputPrinter().handle_import_failure(exc_info)
+
+    def should_print_the_exception(self):
+        this_file = __file__.replace('.pyc', '.py')
+        assert self._printed_lines() == [
+            '%s: In <module>\n' % this_file,
+            '%s:%i: error: FakeError\n' % (this_file, self.failure_line)]
 

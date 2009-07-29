@@ -240,19 +240,34 @@ class MachineOutputPrinter:
 
     def _print_context(self, context):
         if context.is_case and not context.success:
-            self._print_case(context)
+            self.print_failure(context.filename,
+                               context.name,
+                               context.failure)
         if context.children:
             self._print_contexts(context.children)
 
-    def _print_case(self, case):
-        stdout.write('%s: In %s\n' % (case.filename, case.name))
+    def print_failure(self, filename, function_name, failure):
+        stdout.write('%s: In %s\n' % (filename, function_name))
         stdout.write('%s:%s: error: %s\n' % (
-            case.filename,
-            case.failure.exception_line,
-            case.failure.exception_description))
+            filename,
+            failure.exception_line,
+            failure.exception_description))
+
+    def handle_import_failure(self, exc_info):
+        exc_type, exc_value, exc_traceback = sys.exc_info()
+        traceback = self._deepest_level_of_traceback(exc_traceback)
+        failure = Failure((exc_type, exc_value, traceback))
+        tb = failure.exc_traceback
+        filename = tb.tb_frame.f_code.co_filename
+        self.print_failure(filename, '<module>', failure)
+
+    def _deepest_level_of_traceback(self, traceback):
+        while traceback.tb_next:
+            traceback = traceback.tb_next
+        return traceback
 
 
-if __name__ == '__main__':
+def main():
     parser = OptionParser()
     parser.add_option('-q', '--quiet',
                       action='store_const',
@@ -265,13 +280,21 @@ if __name__ == '__main__':
                       const='machine')
     options, args = parser.parse_args()
 
-    paths = list(chain(*[PythonFilesInDirectory(path) for path in args]))
-    modules = map(ImportedModule, paths)
-    suite = SpecSuite(modules)
-
     printer_classes = {'quiet': QuietPrinter,
                        'spec': SpecOutputPrinter,
                        'machine': MachineOutputPrinter}
     printer_class = printer_classes[options.output_type]
-    printer_class().print_suite(suite)
+    printer = printer_class()
+
+    try:
+        paths = list(chain(*[PythonFilesInDirectory(path) for path in args]))
+        modules = map(ImportedModule, paths)
+    except Exception, e:
+        printer.handle_import_failure(sys.exc_info())
+    else:
+        suite = SpecSuite(modules)
+        printer.print_suite(suite)
+
+if __name__ == '__main__':
+    main()
 
