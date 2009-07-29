@@ -29,6 +29,9 @@ class SystemTest(object):
                 'Expected output:\n---\n%s\n---\nbut got:\n---\n%s\n---\n' %
                 (expected_output, output))
 
+    def _assert_output_contains(self, expected_output, args=None):
+        assert dedent(expected_output) in self._output(args=args)
+
     def _assert_succeeds(self):
         self._assert_output_equals('OK\n', args=['--quiet'])
 
@@ -361,4 +364,19 @@ class WhenMultipleTestFilesAreGivenAsArguments(SystemTest):
             OK
             ''',
             test_paths=self.paths)
+
+
+class WhenASpecFileFailsToImport(SystemTest):
+    def setup(self):
+        super(WhenASpecFileFailsToImport, self).setup()
+        self._write_test_file('raise Exception')
+
+    def should_print_traceback(self):
+        self._assert_output_contains(
+            'line 1, in <module>\n    raise Exception')
+
+    def should_print_traceback_when_running_quietly(self):
+        self._assert_output_contains(
+            'line 1, in <module>\n    raise Exception',
+            args=['-q'])
 

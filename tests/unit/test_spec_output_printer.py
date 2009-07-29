@@ -1,6 +1,8 @@
 import sys
 
+from nose.tools import assert_raises
 from dingus import Dingus, DingusTestCase
+
 import mote
 from mote import SpecOutputPrinter
 from tests.unit.patchedstdout import PatchedStdoutMixin
@@ -91,4 +93,19 @@ class WhenCasesAreInNestedContexts(WithPatchedStdOut):
         assert self._printed_lines() == ['outer context inner context\n',
                                          '  - case\n',
                                          'OK\n']
+
+
+class WhenHandlingImportErrors(WithPatchedStdOut):
+    class FakeError(Exception):
+        pass
+
+    def should_reraise_errors(self):
+        assert_raises(self.FakeError, self._handle_error)
+
+    def _handle_error(self):
+        printer = SpecOutputPrinter()
+        try:
+            raise self.FakeError
+        except self.FakeError:
+            printer.handle_import_failure(sys.exc_info())
 

@@ -223,11 +223,17 @@ class SpecOutputPrinter:
             else:
                 self._print_case(context)
 
+    def handle_import_failure(self, exc_info):
+        raise
+
 
 class QuietPrinter:
     def print_suite(self, suite):
         message = 'OK' if suite.success else 'Specs failed'
         stdout.write('%s\n' % message)
+
+    def handle_import_failure(self, exc_info):
+        raise
 
 
 class MachineOutputPrinter:
