@@ -15,6 +15,10 @@ def some_function():
     raise FakeError
 
 
+def some_function_with_description():
+    raise FakeError('some description')
+
+
 def some_other_function():
     raise FakeError
 
@@ -44,11 +48,15 @@ class DescribeFailureWhenMoteModuleIsntInvolved:
         failure = self._failure_for_function(some_function)
         assert failure.exception_line == 15
         failure = self._failure_for_function(some_other_function)
-        assert failure.exception_line == 19
+        assert failure.exception_line == 23
 
     def should_format_exception(self):
         failure = self._failure_for_function(some_function)
         assert failure.formatted_exception == EXPECTED_TRACEBACK
+
+    def should_have_exception_description(self):
+        failure = self._failure_for_function(some_function_with_description)
+        assert failure.exception_description == 'FakeError: some description'
 
 
 class DescribeFailureWhenMoteModuleIsInvolved:

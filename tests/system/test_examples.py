@@ -11,7 +11,8 @@ class TestExamples(SystemTest):
         self.test_file_path = path
         contents = [line.strip() for line in file(path, 'r')]
         expected_output = self._expected_output_from_file_contents(contents)
-        self._assert_output_equals(expected_output)
+        args = self._args_from_file_contents(contents)
+        self._assert_output_equals(expected_output, args=args)
 
     def _expected_output_from_file_contents(self, contents):
         output_marker = contents.index('# Output:')
@@ -21,6 +22,18 @@ class TestExamples(SystemTest):
         raw_output = '\n'.join(output_lines)
         output = raw_output.replace('$ROOT', os.getcwd())
         return output
+
+    def _args_from_file_contents(self, contents):
+        arg_lines = [line for line in contents
+                     if line.startswith('# Args: ')]
+        try:
+            arg_line = arg_lines[0]
+        except IndexError:
+            return None
+
+        arg_string = arg_line.replace('# Args: ', '')
+        args = arg_string.split(' ')
+        return args
 
     def should_match_output_in_example_comments(self):
         base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__),

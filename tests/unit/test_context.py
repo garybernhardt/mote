@@ -13,6 +13,7 @@ class BaseFixture(DingusTestCase(Context, 're')):
 
     def _run_context_with_child_function(self, child_function):
         self.context_function = Dingus()
+        self.context_function.func_code.co_filename = 'some_file.py'
         self.context_function.__name__ = 'describe_something'
         mote.LocalFunctions.return_value = [self.child_function]
         self.context = Context(self.context_function)
@@ -21,7 +22,7 @@ class BaseFixture(DingusTestCase(Context, 're')):
 class WhenRunningContextFromFunction(BaseFixture):
     def setup(self):
         super(WhenRunningContextFromFunction, self).setup()
-        self.child_function = Dingus()
+        self.child_function = Dingus('child_function')
         self._run_context_with_child_function(self.child_function)
 
     def should_extract_children(self):
@@ -32,6 +33,9 @@ class WhenRunningContextFromFunction(BaseFixture):
 
     def should_have_pretty_name(self):
         assert self.context.pretty_name == 'something'
+
+    def should_have_filename(self):
+        assert self.context.filename == 'some_file.py'
 
 
 class WhenRunningMultipleCases(BaseFixture):

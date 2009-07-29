@@ -95,6 +95,14 @@ class Failure:
 
         return traceback
 
+    @property
+    def exception_description(self):
+        desc = traceback.format_exception_only(self.exc_type, self.exc_value)
+        return self._short_exception_description(desc)
+
+    def _short_exception_description(self, exception_description_lines):
+        return exception_description_lines[-1].strip()
+
 
 class PythonFilesInDirectory(list):
     def __init__(self, parent):
@@ -117,9 +125,14 @@ class Context:
         self.original_context_function = context_function
         self.parent = parent
         self.name = context_function.__name__
+        self.filename = self._function_filename()
+
         self.children = self._collect_children()
         if self.success and self.children:
             self.success = all(child.success for child in self.children)
+
+    def _function_filename(self):
+        return self.original_context_function.func_code.co_filename
 
     @property
     def is_case(self):
@@ -222,15 +235,51 @@ class QuietPrinter:
         sys.stdout.write('%s\n' % message)
 
 
+class MachineOutputPrinter:
+    def __init__(self, suite):
+        self.suite = suite
+
+    def print_result(self):
+        self._print_contexts(self.suite.contexts)
+
+    def _print_contexts(self, contexts):
+        for context in contexts:
+            self._print_context(context)
+
+    def _print_context(self, context):
+        if context.is_case and not context.success:
+            self._print_case(context)
+        if context.children:
+            self._print_contexts(context.children)
+
+    def _print_case(self, case):
+        sys.stdout.write('%s: In %s\n' % (case.filename, case.name))
+        sys.stdout.write('%s:%s: error: %s\n' % (
+            case.filename,
+            case.failure.exception_line,
+            case.failure.exception_description))
+
+
 if __name__ == '__main__':
     parser = OptionParser()
-    parser.add_option('-q', '--quiet', action='store_true', dest='quiet')
+    parser.add_option('-q', '--quiet',
+                      action='store_const',
+                      dest='output_type',
+                      const='quiet',
+                      default='spec')
+    parser.add_option('--machine-out',
+                      action='store_const',
+                      dest='output_type',
+                      const='machine')
     options, args = parser.parse_args()
 
     paths = list(chain(*[PythonFilesInDirectory(path) for path in args]))
     modules = map(ImportedModule, paths)
     suite = SpecSuite(modules)
 
-    printer_class = QuietPrinter if options.quiet else SpecOutputPrinter
+    printer_classes = {'quiet': QuietPrinter,
+                       'spec': SpecOutputPrinter,
+                       'machine': MachineOutputPrinter}
+    printer_class = printer_classes[options.output_type]
     printer_class(suite).print_result()
 
