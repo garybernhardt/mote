@@ -8,9 +8,9 @@ from mote.localfunctions import LocalFunctions
 
 
 class BaseFixture(DingusTestCase(mod.LocalFunctions,
-                                 'FunctionLocals',
-                                 'sys',
-                                 'FunctionType')):
+                                 exclude=['FunctionLocals',
+                                          'sys',
+                                          'FunctionType'])):
     def setup(self):
         super(BaseFixture, self).setup()
 

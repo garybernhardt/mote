@@ -82,12 +82,12 @@ class WhenContextSucceeds(BaseFixture):
 
 
 class WhenPrintingAFailure(DingusTestCase(MachineOutputPrinter,
-                                          'sys',
-                                          'dirname',
-                                          'abspath',
-                                          '__file__',
-                                          'mote',
-                                          'traceback'),
+                                          exclude=['sys',
+                                                   'dirname',
+                                                   'abspath',
+                                                   '__file__',
+                                                   'mote',
+                                                   'traceback']),
                            PatchedStdoutMixin(mod)):
     def setup(self):
         super(WhenPrintingAFailure, self).setup()

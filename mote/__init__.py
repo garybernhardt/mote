@@ -31,10 +31,10 @@ def raises(exception, callable_, *args, **kwargs):
 # XXX: Replace this!
 #   1) It was not TDDed
 #   2) It doesn't clean up after itself, leaving the module broken
-def isolate(object_under_test, *exclusions):
+def isolate(object_under_test, exclude=[]):
     def decorator(fn):
         def new_fn(*args, **kwargs):
-            DingusTestCase(object_under_test, *exclusions)().setup()
+            DingusTestCase(object_under_test, exclude=exclude)().setup()
             return fn(*args, **kwargs)
         new_fn.__name__ = fn.__name__
         return new_fn

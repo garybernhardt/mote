@@ -3,7 +3,7 @@ import urllib2 as mod
 from urllib2 import HTTPHandler, URLError
 
 
-@isolate(HTTPHandler, 'URLError')
+@isolate(HTTPHandler, exclude=['URLError'])
 def describe_HTTP_handler():
     def describe_with_no_URL():
         req = Dingus(get_host__returns=None)

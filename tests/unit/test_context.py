@@ -3,7 +3,7 @@ import mote
 from mote import Context
 
 
-class BaseFixture(DingusTestCase(Context, 're')):
+class BaseFixture(DingusTestCase(Context, exclude=['re'])):
     def setup(self):
         super(BaseFixture, self).setup()
 

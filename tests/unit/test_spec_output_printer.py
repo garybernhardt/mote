@@ -9,8 +9,7 @@ from tests.unit.patchedstdout import PatchedStdoutMixin
 
 
 class BaseFixture(DingusTestCase(SpecOutputPrinter,
-                                 'count',
-                                 'QuietPrinter'),
+                                 exclude=['count', 'QuietPrinter']),
                   PatchedStdoutMixin(mod)):
     pass
 
