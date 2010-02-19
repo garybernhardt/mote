@@ -29,7 +29,8 @@ class PythonFilesInDirectory(list):
             child_path = os.path.join(path, child)
             self.extend(PythonFilesInDirectory(child_path))
 
-def main():
+
+def parse_args():
     parser = OptionParser()
     parser.add_option('-q', '--quiet',
                       action='store_const',
@@ -41,7 +42,11 @@ def main():
                       dest='output_type',
                       const='machine')
     options, args = parser.parse_args()
+    return options, args
 
+
+def main():
+    options, args = parse_args()
     printer_classes = {'quiet': printers.QuietPrinter,
                        'spec': printers.SpecOutputPrinter,
                        'machine': printers.MachineOutputPrinter}
