@@ -7,4 +7,7 @@ setup(name='mote',
       author_email='gary.bernhardt@gmail.com',
       packages=['mote'],
       license='BSD',
+      entry_points={
+          'console_scripts': ['mote=mote.runner:main']
+      }
      )

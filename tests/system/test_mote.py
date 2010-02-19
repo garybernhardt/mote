@@ -41,7 +41,7 @@ class SystemTest(object):
     def _run_mote(self, test_paths, args):
         args = [] if args is None else args
         process = subprocess.Popen(
-            ['python', '-m', 'mote'] + test_paths + args,
+            ['python', '-m', 'mote.runner'] + test_paths + args,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT)
         process.wait()
