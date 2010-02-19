@@ -16,11 +16,6 @@ def isolate(object_under_test, exclude=[]):
     return decorator
 
 
-class DummyTestCase(unittest.TestCase):
-    def nop(self):
-        pass
-
-
 def raises(exception, callable_, *args, **kwargs):
     try:
         assert_raises = DummyTestCase('nop').failUnlessRaises
@@ -29,4 +24,9 @@ def raises(exception, callable_, *args, **kwargs):
         return False
     else:
         return True
+
+
+class DummyTestCase(unittest.TestCase):
+    def nop(self):
+        pass
 
