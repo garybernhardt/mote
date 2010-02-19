@@ -1,6 +1,6 @@
 from sys import stdout
 import sys
-import mote.runner
+from mote import suite
 
 
 class SpecOutputPrinter:
@@ -78,7 +78,7 @@ class MachineOutputPrinter:
     def handle_import_failure(self, exc_info):
         exc_type, exc_value, exc_traceback = sys.exc_info()
         traceback = self._deepest_level_of_traceback(exc_traceback)
-        failure = mote.runner.Failure((exc_type, exc_value, traceback))
+        failure = suite.Failure((exc_type, exc_value, traceback))
         tb = failure.exc_traceback
         filename = tb.tb_frame.f_code.co_filename
         self.print_failure(filename, '<module>', failure)
