@@ -7,9 +7,10 @@ from mote.suite import SpecSuite
 from mote import printers
 
 
-class ImportedModule(dict):
-    def __init__(self, filename):
-        execfile(filename, self)
+def globals_from_execed_file(filename):
+    globals_ = {}
+    execfile(filename, globals_)
+    return globals_
 
 
 class PythonFilesInDirectory(list):
@@ -49,7 +50,7 @@ def main():
 
     try:
         paths = list(chain(*[PythonFilesInDirectory(path) for path in args]))
-        modules = map(ImportedModule, paths)
+        modules = map(globals_from_execed_file, paths)
     except Exception, e:
         printer.handle_import_failure(sys.exc_info())
     else:
