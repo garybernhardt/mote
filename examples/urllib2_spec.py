@@ -1,9 +1,11 @@
+from __future__ import with_statement
 import socket
 import urllib2 as mod
 from urllib2 import HTTPHandler, URLError
 
-from mote import isolate, raises
+from mote import isolate
 from dingus import Dingus, DontCare, exception_raiser
+from expecter import expect
 
 
 @isolate(HTTPHandler, exclude=['URLError'])
@@ -12,7 +14,8 @@ def describe_HTTP_handler():
         req = Dingus(get_host__returns=None)
 
         def raises_URL_error():
-            assert raises(URLError, HTTPHandler().http_open, req)
+            with expect.raises(URLError):
+                HTTPHandler().http_open(req)
 
         def doesnt_make_a_request():
             assert not current_http_connection().calls('request')
@@ -33,7 +36,8 @@ def describe_HTTP_handler():
             mod.socket.error = socket.error
             current_http_connection().request = exception_raiser(
                 mod.socket.error)
-            assert raises(URLError, HTTPHandler().http_open, req)
+            with expect.raises(URLError):
+                HTTPHandler().http_open(req)
 
     def describe_processing_a_post():
         mod.splittype.return_value = Dingus.many(2)

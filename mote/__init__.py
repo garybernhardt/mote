@@ -1,5 +1,3 @@
-import unittest
-
 from dingus import DingusTestCase
 
 
@@ -15,19 +13,4 @@ def isolate(object_under_test, exclude=[]):
         new_fn.__name__ = fn.__name__
         return new_fn
     return decorator
-
-
-def raises(exception, callable_, *args, **kwargs):
-    try:
-        assert_raises = DummyTestCase('nop').failUnlessRaises
-        assert_raises(exception, callable_, *args, **kwargs)
-    except AssertionError:
-        return False
-    else:
-        return True
-
-
-class DummyTestCase(unittest.TestCase):
-    def nop(self):
-        pass
 

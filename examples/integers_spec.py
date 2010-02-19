@@ -1,4 +1,5 @@
-from mote import raises
+from __future__ import with_statement
+from expecter import expect
 
 def describe_integer():
     def describe_when_adding_one_and_one():
@@ -6,15 +7,15 @@ def describe_integer():
         def should_get_two():
             assert x == 2
 
-    def describe_when_divided_by_zero():
-        def should_raise_zero_division_error():
-            assert raises(ZeroDivisionError, lambda: 1 / 0)
+    def raises_error_when_dividing_by_zero():
+        with expect.raises(ZeroDivisionError):
+            1 / 0
 
 # Output:
 #
+# integer
 # integer when adding one and one
 #   - should get two
-# integer when divided by zero
-#   - should raise zero division error
+#   - raises error when dividing by zero
 # OK
 
