@@ -23,6 +23,13 @@ def describe_failures_in_helpers():
 #     raise RuntimeError
 # RuntimeError
 #
+#   - an error in a context -> FAIL (RuntimeError @ 6)
+#
+# Traceback (most recent call last):
+#   File "$ROOT/examples/failing_spec.py", line 6, in describe_an_error_in_a_context
+#     raise RuntimeError
+# RuntimeError
+#
 # failures in helpers
 #   - fails in the helper -> FAIL (RuntimeError @ 14)
 # 
@@ -30,13 +37,6 @@ def describe_failures_in_helpers():
 #   File "$ROOT/examples/failing_spec.py", line 14, in fails_in_the_helper
 #     _failing_helper()
 #   File "$ROOT/examples/failing_spec.py", line 12, in _failing_helper
-#     raise RuntimeError
-# RuntimeError
-#
-#   - an error in a context -> FAIL (RuntimeError @ 6)
-#
-# Traceback (most recent call last):
-#   File "$ROOT/examples/failing_spec.py", line 6, in describe_an_error_in_a_context
 #     raise RuntimeError
 # RuntimeError
 # 

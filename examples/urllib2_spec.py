@@ -2,6 +2,9 @@ import socket
 import urllib2 as mod
 from urllib2 import HTTPHandler, URLError
 
+from mote import isolate, raises
+from dingus import Dingus, DontCare, exception_raiser
+
 
 @isolate(HTTPHandler, exclude=['URLError'])
 def describe_HTTP_handler():

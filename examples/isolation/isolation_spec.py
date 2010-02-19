@@ -1,5 +1,7 @@
 from examples.isolation import module_under_test
 
+from mote import isolate
+
 @isolate(module_under_test.A)
 def describe_isolation_on_class_A():
     def replaces_class_B_with_dingus():

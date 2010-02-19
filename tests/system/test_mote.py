@@ -3,7 +3,6 @@ import subprocess
 import tempfile
 from textwrap import dedent
 import re
-import shutil
 
 
 class SystemTest(object):
@@ -142,21 +141,6 @@ class WhenRunningMote(SystemTest):
             '''\
             foo
               - should do stuff
-            OK
-            ''')
-
-    def should_have_raises_function(self):
-        self._write_test_file(
-            '''
-            def describe_integers():
-                def describe_divided_by_zero():
-                    def should_raise_zero_division_error():
-                        assert raises(ZeroDivisionError, lambda: 1 / 0)
-            ''')
-        self._assert_output_equals(
-            '''\
-            integers divided by zero
-              - should raise zero division error
             OK
             ''')
 
