@@ -3,9 +3,10 @@ import unittest
 from dingus import DingusTestCase
 
 
-# XXX: Replace this!
+# XXX: Remove this!
 #   1) It was not TDDed
 #   2) It doesn't clean up after itself, leaving the module broken
+#   3) It belongs in Dingus, not Mote
 def isolate(object_under_test, exclude=[]):
     def decorator(fn):
         def new_fn(*args, **kwargs):
