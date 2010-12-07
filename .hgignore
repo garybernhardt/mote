@@ -1,8 +1,0 @@
-^env$
-\.pyc$
-\#$
-~$
-\.\#
-^mote.egg-info$
-^dist$
-^build$
